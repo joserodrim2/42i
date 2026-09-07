@@ -5,7 +5,11 @@ import {
 } from '@nestjs/common';
 import { Prisma, Task, TaskStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { computeEffortStats, EffortStats, normalizeEffort } from './domain/effort';
+import {
+  computeEffortStats,
+  EffortStats,
+  normalizeEffort,
+} from './domain/effort';
 import { assertTransition, InvalidTransitionError } from './domain/task-status';
 import {
   buildTree,
@@ -21,7 +25,11 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 export type TaskWithSubtasks = TreeNode<Task> & { rollup: EffortStats };
 
 export interface PaginatedTasks {
-  data: (Task & { rollup: EffortStats; subtaskCount: number; subtasks: TreeNode<Task>[] })[];
+  data: (Task & {
+    rollup: EffortStats;
+    subtaskCount: number;
+    subtasks: TreeNode<Task>[];
+  })[];
   page: number;
   pageSize: number;
   total: number;
@@ -74,7 +82,8 @@ export class TasksService {
     if (dto.status !== undefined) data.status = dto.status;
     if (dto.priority !== undefined) data.priority = dto.priority;
     if (dto.effort !== undefined) data.effort = normalizeEffort(dto.effort);
-    if (dto.assignee !== undefined) data.assignee = dto.assignee?.trim() || null;
+    if (dto.assignee !== undefined)
+      data.assignee = dto.assignee?.trim() || null;
     if (dto.parentId !== undefined) {
       data.parent = dto.parentId
         ? { connect: { id: dto.parentId } }
@@ -95,9 +104,9 @@ export class TasksService {
 
   // --- Queries ----------------------------------------------------------------
 
-  async findOne(id: string): Promise<
-    TaskWithSubtasks & { parent: Task | null; ancestors: Task[] }
-  > {
+  async findOne(
+    id: string,
+  ): Promise<TaskWithSubtasks & { parent: Task | null; ancestors: Task[] }> {
     const task = await this.getOrThrow(id);
     const subtree = await this.subtreeRows(id);
     const [tree] = buildTree(subtree);
@@ -107,7 +116,7 @@ export class TasksService {
       : null;
 
     return {
-      ...(tree as TreeNode<Task>),
+      ...tree,
       rollup: computeEffortStats(subtree),
       parent,
       ancestors: await this.ancestors(task),
@@ -122,7 +131,8 @@ export class TasksService {
     const where: Prisma.TaskWhereInput = {};
     if (query.status?.length) where.status = { in: query.status };
     if (query.priority?.length) where.priority = { in: query.priority };
-    if (query.assignee) where.assignee = { equals: query.assignee, mode: 'insensitive' };
+    if (query.assignee)
+      where.assignee = { equals: query.assignee, mode: 'insensitive' };
     if (query.search) {
       where.OR = [
         { title: { contains: query.search, mode: 'insensitive' } },
@@ -164,7 +174,7 @@ export class TasksService {
       const [tree] = buildTree(nodes);
       return {
         ...row,
-        subtasks: (tree?.subtasks ?? []) as TreeNode<Task>[],
+        subtasks: tree?.subtasks ?? [],
         subtaskCount: subtreeIds.size - 1,
         rollup: computeEffortStats(nodes),
       };
@@ -180,7 +190,9 @@ export class TasksService {
   }
 
   /** Global effort figures across the full task hierarchy. */
-  async stats(): Promise<EffortStats & { byStatus: Record<TaskStatus, number> }> {
+  async stats(): Promise<
+    EffortStats & { byStatus: Record<TaskStatus, number> }
+  > {
     const all = await this.prisma.task.findMany({
       select: { status: true, effort: true },
     });
@@ -202,7 +214,8 @@ export class TasksService {
 
   private async assertExists(id: string): Promise<void> {
     const count = await this.prisma.task.count({ where: { id } });
-    if (count === 0) throw new BadRequestException(`Parent task ${id} does not exist`);
+    if (count === 0)
+      throw new BadRequestException(`Parent task ${id} does not exist`);
   }
 
   private async assertReparentAllowed(

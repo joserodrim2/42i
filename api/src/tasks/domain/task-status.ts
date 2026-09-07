@@ -35,7 +35,8 @@ const TRANSITIONS: Record<TaskStatus, readonly TaskStatus[]> = {
 
 export function isTaskStatus(value: unknown): value is TaskStatus {
   return (
-    typeof value === 'string' && (TASK_STATUSES as readonly string[]).includes(value)
+    typeof value === 'string' &&
+    (TASK_STATUSES as readonly string[]).includes(value)
   );
 }
 

@@ -22,7 +22,11 @@ describe('Tasks API (e2e)', () => {
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api');
     app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
     );
     await app.init();
 
@@ -85,7 +89,9 @@ describe('Tasks API (e2e)', () => {
 
   it('supports a multi-level subtask hierarchy and rolls up effort', async () => {
     const root = (
-      await api().post('/api/tasks').send({ title: 'Epic', status: 'IN_PROGRESS' })
+      await api()
+        .post('/api/tasks')
+        .send({ title: 'Epic', status: 'IN_PROGRESS' })
     ).body;
     const child = (
       await api()
@@ -134,7 +140,9 @@ describe('Tasks API (e2e)', () => {
 
   it('exposes global effort stats over the full hierarchy', async () => {
     const root = (
-      await api().post('/api/tasks').send({ title: 'R', status: 'TODO', effort: 2 })
+      await api()
+        .post('/api/tasks')
+        .send({ title: 'R', status: 'TODO', effort: 2 })
     ).body;
     await api()
       .post(`/api/tasks/${root.id}/subtasks`)

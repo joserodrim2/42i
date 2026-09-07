@@ -15,7 +15,9 @@ export type TreeNode<T extends TaskLike> = T & { subtasks: TreeNode<T>[] };
  * the list (or is null) become roots, so passing a subtree slice still works.
  * Sibling order follows input order.
  */
-export function buildTree<T extends TaskLike>(tasks: readonly T[]): TreeNode<T>[] {
+export function buildTree<T extends TaskLike>(
+  tasks: readonly T[],
+): TreeNode<T>[] {
   const byId = new Map<string, TreeNode<T>>();
   for (const task of tasks) byId.set(task.id, { ...task, subtasks: [] });
 

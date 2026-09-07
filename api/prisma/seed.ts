@@ -101,7 +101,10 @@ const TASKS: SeedTask[] = [
   },
 ];
 
-async function createTree(node: SeedTask, parentId: string | null): Promise<void> {
+async function createTree(
+  node: SeedTask,
+  parentId: string | null,
+): Promise<void> {
   const created = await prisma.task.create({
     data: {
       title: node.title,

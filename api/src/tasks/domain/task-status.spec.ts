@@ -11,7 +11,8 @@ import {
 describe('task-status', () => {
   describe('isTaskStatus', () => {
     it('accepts every known status', () => {
-      for (const status of TASK_STATUSES) expect(isTaskStatus(status)).toBe(true);
+      for (const status of TASK_STATUSES)
+        expect(isTaskStatus(status)).toBe(true);
     });
 
     it('rejects unknown or non-string values', () => {
@@ -24,7 +25,8 @@ describe('task-status', () => {
 
   describe('canTransition', () => {
     it('allows staying in the same state (idempotent update)', () => {
-      for (const status of TASK_STATUSES) expect(canTransition(status, status)).toBe(true);
+      for (const status of TASK_STATUSES)
+        expect(canTransition(status, status)).toBe(true);
     });
 
     it.each<[TaskStatus, TaskStatus]>([
@@ -65,7 +67,9 @@ describe('task-status', () => {
     });
 
     it('throws InvalidTransitionError with a helpful message for an invalid one', () => {
-      expect(() => assertTransition('BACKLOG', 'DONE')).toThrow(InvalidTransitionError);
+      expect(() => assertTransition('BACKLOG', 'DONE')).toThrow(
+        InvalidTransitionError,
+      );
       try {
         assertTransition('BACKLOG', 'DONE');
       } catch (err) {

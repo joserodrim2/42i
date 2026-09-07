@@ -41,7 +41,12 @@ describe('buildTree', () => {
 
 describe('collectSubtreeIds', () => {
   it('includes the root and every descendant, multiple levels deep', () => {
-    expect([...collectSubtreeIds(FLAT, 'a')].sort()).toEqual(['a', 'b', 'c', 'd']);
+    expect([...collectSubtreeIds(FLAT, 'a')].sort()).toEqual([
+      'a',
+      'b',
+      'c',
+      'd',
+    ]);
     expect([...collectSubtreeIds(FLAT, 'b')].sort()).toEqual(['b', 'd']);
     expect([...collectSubtreeIds(FLAT, 'd')].sort()).toEqual(['d']);
   });

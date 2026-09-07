@@ -35,7 +35,10 @@ export interface EffortStats {
   unestimatedCount: number;
 }
 
-const NOT_STARTED: ReadonlySet<TaskStatus> = new Set<TaskStatus>(['BACKLOG', 'TODO']);
+const NOT_STARTED: ReadonlySet<TaskStatus> = new Set<TaskStatus>([
+  'BACKLOG',
+  'TODO',
+]);
 const IN_PROGRESS: ReadonlySet<TaskStatus> = new Set<TaskStatus>([
   'IN_PROGRESS',
   'IN_REVIEW',
@@ -45,7 +48,9 @@ const IN_PROGRESS: ReadonlySet<TaskStatus> = new Set<TaskStatus>([
 export function normalizeEffort(value: unknown): number | null {
   if (value === null || value === undefined) return null;
   if (typeof value !== 'number' || !Number.isFinite(value)) {
-    throw new TypeError(`Effort must be a finite number, received: ${String(value)}`);
+    throw new TypeError(
+      `Effort must be a finite number, received: ${JSON.stringify(value)}`,
+    );
   }
   if (value < 0) {
     throw new RangeError(`Effort must be non-negative, received: ${value}`);

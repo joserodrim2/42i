@@ -10,8 +10,9 @@ import {
   Min,
 } from 'class-validator';
 
+/** Accepts `?status=A&status=B` (array) or `?status=A,B` (comma string). */
 const toArray = ({ value }: { value: unknown }): unknown =>
-  value === undefined || Array.isArray(value) ? value : String(value).split(',');
+  typeof value === 'string' ? value.split(',') : value;
 
 export const TASK_SORT_FIELDS = [
   'createdAt',
@@ -54,7 +55,7 @@ export class QueryTasksDto {
   scope?: 'roots' | 'all' = 'roots';
 
   @IsOptional()
-  @IsIn(TASK_SORT_FIELDS as unknown as string[])
+  @IsIn(TASK_SORT_FIELDS)
   sortBy?: TaskSortField = 'createdAt';
 
   @IsOptional()
