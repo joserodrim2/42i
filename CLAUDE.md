@@ -4,7 +4,7 @@ Guidance for Claude Code (and other agents) working in this repository.
 
 ## Project
 
-Task System — a task manager for a small dev team. Tasks nest into subtasks of
+Task Handler — a task manager for a small dev team. Tasks nest into subtasks of
 arbitrary depth; effort estimates roll up through the hierarchy. Monorepo:
 
 - `api/` — NestJS 11 + Prisma 6 + PostgreSQL. REST API under `/api`.

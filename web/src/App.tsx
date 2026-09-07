@@ -9,7 +9,14 @@ export default function App() {
         <div className="inner">
           <h1>
             <Link to="/" style={{ color: 'inherit' }}>
-              Task System
+              <img
+                src="/favicon.svg"
+                alt=""
+                width="20"
+                height="20"
+                style={{ verticalAlign: '-3px', marginRight: '0.4rem' }}
+              />
+              Task Handler
             </Link>
           </h1>
           <span className="tagline">Track, prioritise and estimate the team&apos;s work</span>

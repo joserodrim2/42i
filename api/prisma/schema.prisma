@@ -1,4 +1,4 @@
-// Prisma schema for the Task System.
+// Prisma schema for Task Handler.
 // Tasks form a tree via the self-relation `parent`/`subtasks` (adjacency list).
 // Deleting a task cascades to its whole subtree (see onDelete: Cascade).
 

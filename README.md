@@ -1,4 +1,4 @@
-# Task System
+# Task Handler
 
 A small web app for a development team to track, prioritise and estimate its work.
 Tasks form a tree of subtasks of arbitrary depth; effort estimates roll up through
