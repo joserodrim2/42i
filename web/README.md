@@ -1,32 +1,23 @@
-# React + TypeScript + Vite
+# web
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React + Vite frontend for the Task System. See the [root README](../README.md)
+for the full picture.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev      # http://localhost:5173, proxies /api -> http://localhost:3000
+npm run build    # tsc -b && vite build -> dist/
+npm run lint
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+The dev server proxies `/api` to `http://localhost:3000` (override with
+`VITE_API_PROXY`). In Docker the app is served by nginx, which proxies `/api` to
+the `api` service.
+
+## Layout
+
+- `src/pages/` — `TaskListPage` (list, filters, stats, pagination),
+  `TaskDetailPage` (detail, edit, status transitions, subtask tree)
+- `src/components/` — `Badges`, `StatsBar`, `TaskForm`, `SubtaskTree`, `Modal`
+- `src/hooks/useTasks.ts` — TanStack Query queries + mutations
+- `src/lib/` — `api.ts` (fetch client), `types.ts` (shared types, lifecycle graph)
