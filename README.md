@@ -197,6 +197,11 @@ Base path: `/api`. All bodies are JSON.
 | `PATCH` | `/tasks/:id` | Partial update. `effort` and `parentId` accept `null` to clear / un-nest. Status changes are checked against the lifecycle; setting `effort` on a task with subtasks is rejected. |
 | `DELETE` | `/tasks/:id` | Delete the task and its subtree. Returns `{ id, deletedCount }`. |
 
+**Field rules** (enforced by the DTOs, shown in the Swagger schemas, and mirrored
+in the web form): `title` non-blank, ≤ 200 chars (trimmed); `description` ≤ 5000;
+`assignee` ≤ 120; `effort` integer 0–10; `search` ≤ 200; `page` ≤ 100000,
+`pageSize` ≤ 100. `search` matches `%` / `_` literally.
+
 ```bash
 # create a parent task, then estimated leaf subtasks under it
 curl -s localhost:3000/api/tasks -H 'content-type: application/json' \

@@ -8,10 +8,19 @@ import {
 import { Prisma } from '@prisma/client';
 import { Response } from 'express';
 
+/** Reason phrases matching Nest's own HttpException bodies. */
+const REASON: Partial<Record<HttpStatus, string>> = {
+  [HttpStatus.BAD_REQUEST]: 'Bad Request',
+  [HttpStatus.NOT_FOUND]: 'Not Found',
+  [HttpStatus.CONFLICT]: 'Conflict',
+  [HttpStatus.INTERNAL_SERVER_ERROR]: 'Internal Server Error',
+};
+
 /**
  * Maps the Prisma errors that can still reach the transport layer to sensible
- * HTTP responses. Most invalid input is already rejected earlier by the DTOs
- * and the service's own checks; this is the safety net.
+ * HTTP responses, in the same body shape Nest uses. Most invalid input is
+ * already rejected earlier by the DTOs and the service's own checks; this is
+ * the safety net (e.g. a row deleted concurrently between check and write).
  */
 @Catch(Prisma.PrismaClientKnownRequestError)
 export class PrismaExceptionFilter implements ExceptionFilter {
@@ -19,8 +28,8 @@ export class PrismaExceptionFilter implements ExceptionFilter {
 
   catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
     const response = host.switchToHttp().getResponse<Response>();
-
     const { status, message } = this.translate(exception);
+
     if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
       this.logger.error(
         `Unhandled Prisma error ${exception.code}`,
@@ -30,8 +39,8 @@ export class PrismaExceptionFilter implements ExceptionFilter {
 
     response.status(status).json({
       statusCode: status,
-      error: HttpStatus[status],
       message,
+      error: REASON[status] ?? 'Error',
     });
   }
 

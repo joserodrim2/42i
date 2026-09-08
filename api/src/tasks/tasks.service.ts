@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma, Task, TaskStatus } from '@prisma/client';
+import { escapeLike } from '../common/transforms';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   computeEffortStats,
@@ -158,9 +159,10 @@ export class TasksService {
     if (query.assignee)
       where.assignee = { equals: query.assignee, mode: 'insensitive' };
     if (query.search) {
+      const term = escapeLike(query.search);
       where.OR = [
-        { title: { contains: query.search, mode: 'insensitive' } },
-        { description: { contains: query.search, mode: 'insensitive' } },
+        { title: { contains: term, mode: 'insensitive' } },
+        { description: { contains: term, mode: 'insensitive' } },
       ];
     }
     if (scope === 'roots') where.parentId = null;

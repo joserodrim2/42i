@@ -2,6 +2,7 @@ import { TaskPriority, TaskStatus } from '@prisma/client';
 import {
   IsEnum,
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
@@ -10,6 +11,7 @@ import {
   Min,
   ValidateIf,
 } from 'class-validator';
+import { Trim } from '../../common/transforms';
 import { EFFORT_MAX } from '../domain/effort';
 
 /**
@@ -18,12 +20,16 @@ import { EFFORT_MAX } from '../domain/effort';
  * Status changes are additionally checked against the lifecycle in the service.
  */
 export class UpdateTaskDto {
+  /** New title. Required to be 1–200 non-blank characters when present. */
   @IsOptional()
+  @Trim()
   @IsString()
+  @IsNotEmpty()
   @MaxLength(200)
   title?: string;
 
   @IsOptional()
+  @Trim()
   @IsString()
   @MaxLength(5000)
   description?: string;
@@ -45,6 +51,7 @@ export class UpdateTaskDto {
 
   @IsOptional()
   @ValidateIf((_, value) => value !== null)
+  @Trim()
   @IsString()
   @MaxLength(120)
   assignee?: string | null;

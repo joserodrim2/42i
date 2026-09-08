@@ -92,6 +92,54 @@ describe('Tasks API (e2e)', () => {
       .expect(400);
   });
 
+  it('rejects a blank title on create and on update', async () => {
+    await api().post('/api/tasks').send({ title: '' }).expect(400);
+    await api().post('/api/tasks').send({ title: '   ' }).expect(400);
+
+    const { body } = await api().post('/api/tasks').send({ title: 'ok' });
+    await api()
+      .patch(`/api/tasks/${body.id}`)
+      .send({ title: '  ' })
+      .expect(400);
+  });
+
+  it('trims surrounding whitespace from text fields', async () => {
+    const { body } = await api()
+      .post('/api/tasks')
+      .send({ title: '  Padded  ', assignee: '  Sam  ' })
+      .expect(201);
+    expect(body.title).toBe('Padded');
+    expect(body.assignee).toBe('Sam');
+  });
+
+  it('rejects over-long fields with 400', async () => {
+    await api()
+      .post('/api/tasks')
+      .send({ title: 'x'.repeat(201) })
+      .expect(400);
+    await api()
+      .post('/api/tasks')
+      .send({ title: 'x', description: 'd'.repeat(5001) })
+      .expect(400);
+    await api()
+      .post('/api/tasks')
+      .send({ title: 'x', assignee: 'a'.repeat(121) })
+      .expect(400);
+  });
+
+  it('treats % and _ in search as literal characters', async () => {
+    await api().post('/api/tasks').send({ title: 'plain task' });
+    await api().post('/api/tasks').send({ title: '50% done' });
+
+    const all = await api().get('/api/tasks?scope=all&search=%25').expect(200);
+    expect(all.body.data).toHaveLength(1);
+    expect(all.body.data[0].title).toBe('50% done');
+  });
+
+  it('caps the page parameter', async () => {
+    await api().get('/api/tasks?page=999999999').expect(400);
+  });
+
   it('rolls up effort over a multi-level hierarchy, counting only leaves', async () => {
     // Epic > Story(TODO) > [Design(TODO,3), Build(IN_PROGRESS,8)]; Epic > Docs(TODO,5)
     const epic = (
