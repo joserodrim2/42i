@@ -14,20 +14,19 @@ export function StatsBar({ stats, title }: Props) {
     ['Blocked', stats.blocked],
     ['Completed', stats.completed],
     ['Total estimated', stats.totalEstimated],
-    [
-      'Leaf tasks',
-      `${stats.estimatedCount}/${stats.leafCount} estimated`,
-    ],
+    ['Leaf tasks', `${stats.estimatedCount}/${stats.leafCount} estimated`],
   ]
 
   return (
-    <section className="stack">
-      {title && <h3 className="small muted">{title}</h3>}
-      <div className="stats-grid">
+    <section className="flex flex-col gap-3">
+      {title && (
+        <h3 className="text-sm font-medium text-slate-500">{title}</h3>
+      )}
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-3">
         {cells.map(([label, value]) => (
-          <div className="card stat" key={label}>
-            <p className="value">{value}</p>
-            <p className="label muted">{label}</p>
+          <div className="card px-3.5 py-3" key={label}>
+            <p className="text-2xl font-bold">{value}</p>
+            <p className="text-xs uppercase tracking-wide text-slate-400">{label}</p>
           </div>
         ))}
       </div>

@@ -7,7 +7,7 @@ Tasks form a tree of subtasks of arbitrary depth; effort estimates roll up throu
 the whole hierarchy so the team can see its workload at a glance.
 
 - **API** — NestJS + Prisma + PostgreSQL, REST, unit + e2e tests
-- **Web** — React + Vite (list view, detail view, subtask tree)
+- **Web** — React + Vite + Tailwind CSS (list view, detail view, subtask tree)
 - **Runs** with a single `docker compose up`
 
 ---
@@ -245,6 +245,7 @@ curl -s localhost:3000/api/tasks/stats
 │   └── test/                e2e tests
 └── web/
     └── src/
+        ├── index.css        Tailwind + shared component classes
         ├── pages/           TaskListPage, TaskDetailPage
         ├── components/      Badges, StatsBar, TaskForm, SubtaskTree, Modal, Toast, Confirm
         ├── hooks/           TanStack Query hooks, toast/confirm contexts

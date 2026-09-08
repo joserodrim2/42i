@@ -8,6 +8,12 @@ import {
 
 let nextId = 0
 
+const BORDER: Record<ToastKind, string> = {
+  success: 'border-l-emerald-500',
+  error: 'border-l-red-500',
+  info: 'border-l-brand-500',
+}
+
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ToastItem[]>([])
 
@@ -31,14 +37,18 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={api}>
       {children}
-      <div className="toast-stack" role="region" aria-live="polite">
+      <div
+        className="fixed bottom-4 right-4 z-50 flex w-[min(360px,calc(100vw-2rem))] flex-col gap-2"
+        role="region"
+        aria-live="polite"
+      >
         {items.map((t) => (
           <button
             key={t.id}
             type="button"
-            className={`toast toast-${t.kind}`}
             onClick={() => dismiss(t.id)}
             title="Dismiss"
+            className={`animate-toast-in cursor-pointer rounded-lg border border-slate-200 border-l-4 bg-white px-3.5 py-2.5 text-left text-sm text-slate-800 shadow-lg hover:bg-slate-50 ${BORDER[t.kind]}`}
           >
             {t.message}
           </button>

@@ -30,15 +30,15 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
         title={pending?.options.title ?? ''}
       >
         {pending?.options.message && (
-          <p style={{ marginTop: 0 }}>{pending.options.message}</p>
+          <p className="mt-0 text-sm text-slate-600">{pending.options.message}</p>
         )}
-        <div className="row" style={{ justifyContent: 'flex-end' }}>
-          <button type="button" className="ghost" onClick={() => settle(false)}>
+        <div className="mt-4 flex justify-end gap-2">
+          <button type="button" className="btn btn-ghost" onClick={() => settle(false)}>
             {pending?.options.cancelLabel ?? 'Cancel'}
           </button>
           <button
             type="button"
-            className={pending?.options.danger ? 'danger' : 'primary'}
+            className={`btn ${pending?.options.danger ? 'btn-danger' : 'btn-primary'}`}
             onClick={() => settle(true)}
           >
             {pending?.options.confirmLabel ?? 'Confirm'}

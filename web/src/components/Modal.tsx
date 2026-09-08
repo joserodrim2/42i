@@ -18,10 +18,10 @@ export function Modal({ open, onClose, title, children }: Props) {
   }, [open])
 
   return (
-    <dialog className="modal" ref={ref} onClose={onClose}>
-      <div className="row spread" style={{ marginBottom: '0.75rem' }}>
-        <h3 style={{ margin: 0 }}>{title}</h3>
-        <button className="ghost" onClick={onClose} aria-label="Close">
+    <dialog ref={ref} onClose={onClose}>
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-base font-semibold">{title}</h3>
+        <button className="btn btn-ghost btn-sm" onClick={onClose} aria-label="Close">
           ✕
         </button>
       </div>

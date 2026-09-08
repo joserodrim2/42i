@@ -33,12 +33,16 @@ export function TaskDetailPage() {
   const [subtaskParent, setSubtaskParent] = useState<string | null>(null)
   const addSubtask = useAddSubtask(subtaskParent ?? id)
 
-  if (task.isLoading) return <p className="muted">Loading…</p>
+  if (task.isLoading) return <p className="text-slate-500">Loading…</p>
   if (task.isError || !task.data)
     return (
-      <div className="stack">
-        <p className="error">Task not found.</p>
-        <Link to="/">← Back to all tasks</Link>
+      <div className="flex flex-col gap-3">
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+          Task not found.
+        </p>
+        <Link to="/" className="text-brand-600 hover:underline">
+          ← Back to all tasks
+        </Link>
       </div>
     )
 
@@ -82,28 +86,33 @@ export function TaskDetailPage() {
   }
 
   return (
-    <div className="stack" style={{ gap: '1.5rem' }}>
+    <div className="flex flex-col gap-6">
       <div>
-        <div className="breadcrumb">
-          <Link to="/">All tasks</Link>
+        <div className="mb-2 text-sm text-slate-500">
+          <Link to="/" className="text-brand-600 hover:underline">
+            All tasks
+          </Link>
           {t.ancestors.map((a) => (
             <span key={a.id}>
               {' / '}
-              <Link to={`/tasks/${a.id}`}>{a.title}</Link>
+              <Link to={`/tasks/${a.id}`} className="text-brand-600 hover:underline">
+                {a.title}
+              </Link>
             </span>
           ))}
           {' / '}
           <span>{t.title}</span>
         </div>
 
-        <div className="card" style={{ padding: '1.1rem' }}>
-          <div className="row spread">
-            <div className="row" style={{ gap: '0.5rem' }}>
+        <div className="card p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
               <StatusBadge status={t.status} />
               <PriorityBadge priority={t.priority} />
             </div>
-            <div className="row" style={{ gap: '0.3rem' }}>
+            <div className="flex gap-1">
               <button
+                className="btn"
                 onClick={() => {
                   updateTask.reset()
                   setEditing(true)
@@ -112,7 +121,7 @@ export function TaskDetailPage() {
                 Edit
               </button>
               <button
-                className="danger"
+                className="btn btn-danger"
                 onClick={() => void handleDelete(t, true)}
                 disabled={deleteTask.isPending}
               >
@@ -121,12 +130,12 @@ export function TaskDetailPage() {
             </div>
           </div>
 
-          <h2 style={{ margin: '0.75rem 0 0.25rem' }}>{t.title}</h2>
-          <p style={{ whiteSpace: 'pre-wrap', marginTop: 0 }}>
-            {t.description || <span className="muted">No description.</span>}
+          <h2 className="mb-1 mt-3 text-xl font-semibold">{t.title}</h2>
+          <p className="mt-0 whitespace-pre-wrap text-sm">
+            {t.description || <span className="text-slate-500">No description.</span>}
           </p>
 
-          <div className="row small muted" style={{ gap: '1rem' }}>
+          <div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-500">
             <span>
               {t.subtasks.length > 0
                 ? `Estimate: ${t.rollup.totalEstimated} pts (rolled up)`
@@ -137,12 +146,12 @@ export function TaskDetailPage() {
             <span>Updated {new Date(t.updatedAt).toLocaleString()}</span>
           </div>
 
-          <div className="row" style={{ marginTop: '0.85rem', gap: '0.35rem' }}>
-            <span className="small muted">Move to:</span>
+          <div className="mt-3.5 flex flex-wrap items-center gap-1.5">
+            <span className="text-xs text-slate-500">Move to:</span>
             {ALLOWED_TRANSITIONS[t.status].map((next) => (
               <button
                 key={next}
-                className="small"
+                className="btn btn-sm"
                 disabled={updateTask.isPending}
                 onClick={() => changeStatus(next)}
               >
@@ -155,10 +164,11 @@ export function TaskDetailPage() {
 
       <StatsBar stats={t.rollup} title="This task + all its subtasks (effort points)" />
 
-      <section className="stack">
-        <div className="row spread">
-          <h3 style={{ margin: 0 }}>Subtasks</h3>
+      <section className="flex flex-col gap-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-lg font-semibold">Subtasks</h3>
           <button
+            className="btn"
             onClick={() => {
               addSubtask.reset()
               setSubtaskParent(id)
@@ -167,7 +177,7 @@ export function TaskDetailPage() {
             + Add subtask
           </button>
         </div>
-        <div className="card" style={{ padding: '0.85rem' }}>
+        <div className="card p-3.5">
           <SubtaskTree
             nodes={t.subtasks}
             onAddSubtask={(parentId) => {

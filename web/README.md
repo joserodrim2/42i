@@ -1,6 +1,6 @@
 # web
 
-React + Vite frontend for Task Handler. See the [root README](../README.md)
+React + Vite + Tailwind CSS frontend for Task Handler. See the [root README](../README.md)
 for the full picture.
 
 ```bash

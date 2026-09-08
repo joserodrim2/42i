@@ -69,11 +69,14 @@ export function TaskForm({
   }
 
   return (
-    <form className="stack" onSubmit={handleSubmit}>
+    <form className="flex flex-col gap-3.5" onSubmit={handleSubmit}>
       <div>
-        <label htmlFor="title">Title</label>
+        <label className="form-label" htmlFor="title">
+          Title
+        </label>
         <input
           id="title"
+          className="field"
           required
           maxLength={200}
           value={title}
@@ -83,20 +86,26 @@ export function TaskForm({
       </div>
 
       <div>
-        <label htmlFor="description">Description</label>
+        <label className="form-label" htmlFor="description">
+          Description
+        </label>
         <textarea
           id="description"
+          className="field min-h-16 resize-y"
           maxLength={5000}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
       </div>
 
-      <div className="row">
-        <div style={{ flex: 1 }}>
-          <label htmlFor="status">Status</label>
+      <div className="flex flex-wrap gap-3">
+        <div className="min-w-32 flex-1">
+          <label className="form-label" htmlFor="status">
+            Status
+          </label>
           <select
             id="status"
+            className="field"
             value={status}
             onChange={(e) => setStatus(e.target.value as TaskStatus)}
           >
@@ -107,10 +116,13 @@ export function TaskForm({
             ))}
           </select>
         </div>
-        <div style={{ flex: 1 }}>
-          <label htmlFor="priority">Priority</label>
+        <div className="min-w-32 flex-1">
+          <label className="form-label" htmlFor="priority">
+            Priority
+          </label>
           <select
             id="priority"
+            className="field"
             value={priority}
             onChange={(e) => setPriority(e.target.value as Task['priority'])}
           >
@@ -123,11 +135,14 @@ export function TaskForm({
         </div>
       </div>
 
-      <div className="row">
-        <div style={{ flex: 1 }}>
-          <label htmlFor="effort">Estimate — effort points, 1–10 (optional)</label>
+      <div className="flex flex-wrap gap-3">
+        <div className="min-w-40 flex-1">
+          <label className="form-label" htmlFor="effort">
+            Estimate — effort points, 1–10 (optional)
+          </label>
           <input
             id="effort"
+            className="field"
             type="number"
             min={EFFORT_MIN}
             max={EFFORT_MAX}
@@ -138,22 +153,21 @@ export function TaskForm({
             onChange={(e) => setEffort(e.target.value)}
           />
           {hasSubtasks ? (
-            <p className="small muted" style={{ margin: '0.3rem 0 0' }}>
+            <p className="mt-1 text-xs text-slate-500">
               Derived from subtasks — estimate the subtasks instead.
             </p>
           ) : (
-            <div className="row" style={{ gap: '0.25rem', marginTop: '0.35rem' }}>
+            <div className="mt-1.5 flex flex-wrap gap-1">
               {EFFORT_POINTS.map((n) => (
                 <button
                   type="button"
                   key={n}
-                  className="small ghost"
-                  aria-pressed={effort === String(n)}
-                  style={
+                  className={`btn btn-sm min-w-9 justify-center ${
                     effort === String(n)
-                      ? { borderColor: 'var(--primary)', color: 'var(--primary)' }
-                      : undefined
-                  }
+                      ? 'border-brand-500 bg-brand-50 text-brand-600'
+                      : ''
+                  }`}
+                  aria-pressed={effort === String(n)}
                   onClick={() => setEffort(effort === String(n) ? '' : String(n))}
                 >
                   {n}
@@ -162,10 +176,13 @@ export function TaskForm({
             </div>
           )}
         </div>
-        <div style={{ flex: 1 }}>
-          <label htmlFor="assignee">Assignee (optional)</label>
+        <div className="min-w-40 flex-1">
+          <label className="form-label" htmlFor="assignee">
+            Assignee (optional)
+          </label>
           <input
             id="assignee"
+            className="field"
             maxLength={120}
             value={assignee}
             onChange={(e) => setAssignee(e.target.value)}
@@ -173,15 +190,23 @@ export function TaskForm({
         </div>
       </div>
 
-      {error && <p className="error">{error}</p>}
+      {error && (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+          {error}
+        </p>
+      )}
 
-      <div className="row" style={{ justifyContent: 'flex-end' }}>
+      <div className="flex justify-end gap-2">
         {onCancel && (
-          <button type="button" className="ghost" onClick={onCancel}>
+          <button type="button" className="btn btn-ghost" onClick={onCancel}>
             Cancel
           </button>
         )}
-        <button type="submit" className="primary" disabled={submitting || !title.trim()}>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={submitting || !title.trim()}
+        >
           {submitting ? 'Saving…' : mode === 'create' ? 'Create task' : 'Save changes'}
         </button>
       </div>

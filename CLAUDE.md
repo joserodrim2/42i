@@ -8,7 +8,7 @@ Task Handler — a task manager for a small dev team. Tasks nest into subtasks o
 arbitrary depth; effort estimates roll up through the hierarchy. Monorepo:
 
 - `api/` — NestJS 11 + Prisma 6 + PostgreSQL. REST API under `/api`.
-- `web/` — React 19 + Vite + TanStack Query. SPA, talks to `/api`.
+- `web/` — React 19 + Vite + Tailwind CSS v4 + TanStack Query. SPA, talks to `/api`.
 - `docker-compose.yml` — `db` + `api` + `web`, single-command startup.
 
 ## Architecture rules
@@ -52,6 +52,10 @@ npm run build                # tsc -b && vite build
 
 - TypeScript strict-ish; `web/` uses `verbatimModuleSyntax` so import types with
   `import type`.
+- Styling: Tailwind CSS v4 via `@tailwindcss/vite` (no config file). Shared
+  primitives (`.btn*`, `.card`, `.field`, `.badge`) live in `@layer components`
+  in `web/src/index.css`; everything else is utilities. Brand palette is the
+  `@theme` block.
 - Prettier + ESLint (api), oxlint (web). Run lint before committing.
 - Commit style: Conventional Commits, scoped `api` / `web` / build. Small,
   focused commits.

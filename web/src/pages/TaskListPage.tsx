@@ -23,6 +23,9 @@ const SORT_COLUMNS: { key: string; label: string }[] = [
   { key: 'updatedAt', label: 'Updated' },
 ]
 
+const TH = 'cursor-pointer select-none px-2.5 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-400'
+const TD = 'border-b border-slate-200 px-2.5 py-2.5 align-middle'
+
 export function TaskListPage() {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState<TaskStatus | ''>('')
@@ -63,7 +66,7 @@ export function TaskListPage() {
   }
 
   return (
-    <div className="stack" style={{ gap: '1.5rem' }}>
+    <div className="flex flex-col gap-6">
       {stats.data && (
         <StatsBar
           stats={stats.data}
@@ -71,11 +74,11 @@ export function TaskListPage() {
         />
       )}
 
-      <section className="stack">
-        <div className="row spread">
-          <h2 style={{ margin: 0 }}>Tasks</h2>
+      <section className="flex flex-col gap-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-xl font-semibold">Tasks</h2>
           <button
-            className="primary"
+            className="btn btn-primary"
             onClick={() => {
               createTask.reset()
               setCreating(true)
@@ -85,24 +88,24 @@ export function TaskListPage() {
           </button>
         </div>
 
-        <div className="card" style={{ padding: '0.85rem' }}>
-          <div className="row">
+        <div className="card p-3.5">
+          <div className="flex flex-wrap gap-2">
             <input
+              className="field min-w-[200px] flex-[2]"
               placeholder="Search title or description…"
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value)
                 setPage(1)
               }}
-              style={{ flex: '2 1 200px' }}
             />
             <select
+              className="field min-w-[120px] flex-1"
               value={status}
               onChange={(e) => {
                 setStatus(e.target.value as TaskStatus | '')
                 setPage(1)
               }}
-              style={{ flex: '1 1 120px' }}
             >
               <option value="">All statuses</option>
               {TASK_STATUSES.map((s) => (
@@ -112,12 +115,12 @@ export function TaskListPage() {
               ))}
             </select>
             <select
+              className="field min-w-[120px] flex-1"
               value={priority}
               onChange={(e) => {
                 setPriority(e.target.value as TaskPriority | '')
                 setPage(1)
               }}
-              style={{ flex: '1 1 120px' }}
             >
               <option value="">All priorities</option>
               {TASK_PRIORITIES.map((p) => (
@@ -127,12 +130,12 @@ export function TaskListPage() {
               ))}
             </select>
             <select
+              className="field min-w-[120px] flex-1"
               value={scope}
               onChange={(e) => {
                 setScope(e.target.value as 'roots' | 'all')
                 setPage(1)
               }}
-              style={{ flex: '1 1 120px' }}
             >
               <option value="roots">Top-level tasks</option>
               <option value="all">All tasks (flat)</option>
@@ -140,52 +143,64 @@ export function TaskListPage() {
           </div>
         </div>
 
-        {list.isLoading && <p className="muted">Loading tasks…</p>}
-        {list.isError && <p className="error">Could not load tasks.</p>}
+        {list.isLoading && <p className="text-slate-500">Loading tasks…</p>}
+        {list.isError && (
+          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+            Could not load tasks.
+          </p>
+        )}
 
         {list.data && (
           <>
-            <div className="card table-wrap">
-              <table className="tasks">
+            <div className="card overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr>
                     {SORT_COLUMNS.map((col) => (
-                      <th key={col.key} onClick={() => toggleSort(col.key)}>
+                      <th key={col.key} className={TH} onClick={() => toggleSort(col.key)}>
                         {col.label}
                         {sortBy === col.key ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''}
                       </th>
                     ))}
-                    <th>Assignee</th>
-                    <th>Subtasks</th>
-                    <th>Remaining / total</th>
+                    <th className={TH}>Assignee</th>
+                    <th className={TH}>Subtasks</th>
+                    <th className={TH}>Remaining / total</th>
                   </tr>
                 </thead>
                 <tbody>
                   {list.data.data.map((task) => (
-                    <tr key={task.id}>
-                      <td>
-                        <Link to={`/tasks/${task.id}`}>{task.title}</Link>
+                    <tr key={task.id} className="hover:bg-slate-50">
+                      <td className={TD}>
+                        <Link
+                          to={`/tasks/${task.id}`}
+                          className="font-medium text-brand-600 hover:underline"
+                        >
+                          {task.title}
+                        </Link>
                       </td>
-                      <td>
+                      <td className={TD}>
                         <StatusBadge status={task.status} />
                       </td>
-                      <td>
+                      <td className={TD}>
                         <PriorityBadge priority={task.priority} />
                       </td>
-                      <td>{effortLabel(task)}</td>
-                      <td className="muted small">
+                      <td className={TD}>{effortLabel(task)}</td>
+                      <td className={`${TD} text-xs text-slate-500`}>
                         {new Date(task.updatedAt).toLocaleDateString()}
                       </td>
-                      <td>{task.assignee ?? '—'}</td>
-                      <td>{task.subtaskCount}</td>
-                      <td className="small">
+                      <td className={TD}>{task.assignee ?? '—'}</td>
+                      <td className={TD}>{task.subtaskCount}</td>
+                      <td className={`${TD} text-xs`}>
                         {task.rollup.remaining} / {task.rollup.totalEstimated}
                       </td>
                     </tr>
                   ))}
                   {list.data.data.length === 0 && (
                     <tr>
-                      <td colSpan={8} className="muted" style={{ textAlign: 'center' }}>
+                      <td
+                        colSpan={8}
+                        className={`${TD} text-center text-slate-500`}
+                      >
                         No tasks match these filters.
                       </td>
                     </tr>
@@ -194,14 +209,20 @@ export function TaskListPage() {
               </table>
             </div>
 
-            <div className="pagination">
-              <span className="muted small">
-                {list.data.total} task(s) · page {list.data.page} of {list.data.totalPages}
+            <div className="flex items-center justify-end gap-2">
+              <span className="text-xs text-slate-500">
+                {list.data.total} task(s) · page {list.data.page} of{' '}
+                {list.data.totalPages}
               </span>
-              <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+              <button
+                className="btn btn-sm"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => p - 1)}
+              >
                 ← Prev
               </button>
               <button
+                className="btn btn-sm"
                 disabled={page >= list.data.totalPages}
                 onClick={() => setPage((p) => p + 1)}
               >
