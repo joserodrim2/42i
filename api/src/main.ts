@@ -30,6 +30,8 @@ async function bootstrap() {
         'effort roll-ups over the hierarchy.',
     )
     .setVersion('1.0')
+    .addTag('tasks', 'Task CRUD, subtasks and effort roll-ups')
+    .addTag('meta', 'Health check and service info')
     .build();
   SwaggerModule.setup(
     'api/docs',
