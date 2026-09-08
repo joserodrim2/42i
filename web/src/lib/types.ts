@@ -19,6 +19,14 @@ export type TaskPriority = (typeof TASK_PRIORITIES)[number]
 export const EFFORT_MIN = 1
 export const EFFORT_MAX = 10
 
+/** Field length limits — kept in sync with the API DTOs. */
+export const FIELD_LIMITS = {
+  title: 200,
+  description: 5000,
+  assignee: 120,
+  search: 200,
+} as const
+
 /**
  * Mirrors the lifecycle graph in api/src/tasks/domain/task-status.ts.
  * Used to offer only valid next states in the UI; the API enforces it too.

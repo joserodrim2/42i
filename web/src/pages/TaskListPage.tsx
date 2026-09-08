@@ -8,6 +8,7 @@ import { useToast } from '../hooks/toast'
 import { useCreateTask, useStats, useTaskList } from '../hooks/useTasks'
 import { effortLabel } from '../lib/effort'
 import {
+  FIELD_LIMITS,
   TASK_PRIORITIES,
   TASK_STATUSES,
   type TaskListQuery,
@@ -93,6 +94,7 @@ export function TaskListPage() {
             <input
               className="field min-w-[200px] flex-[2]"
               placeholder="Search title or description…"
+              maxLength={FIELD_LIMITS.search}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value)
