@@ -37,10 +37,10 @@ arbitrary depth; effort estimates roll up through the hierarchy. Monorepo:
 docker compose up --build
 
 # API (from api/)
-npm run start:dev            # watch mode, needs db up + .env
-npm test                     # unit tests (domain) — no db needed
+npm run start:dev            # watch mode, needs db up + .env; docs at /api/docs
+npm test                     # unit tests (domain + service, mocked db) — no db
 npm run test:e2e             # e2e — needs db + migrations applied
-npm run lint
+npm run lint                 # check only; lint:fix to autofix
 npx prisma migrate dev --name <name>   # after editing schema.prisma
 
 # Web (from web/)
@@ -65,6 +65,11 @@ npm run build                # tsc -b && vite build
   Postgres on 5432). `.env.example` matches.
 - `prisma generate` must not require `DATABASE_URL`; the URL is read lazily from
   `schema.prisma`'s `env()`.
+- Swagger schemas come from the `@nestjs/swagger` CLI plugin in `nest-cli.json`
+  (inferred from DTOs at `nest build`/`start`; not applied under ts-jest).
+- After `npm install`ing a dep on macOS the lockfile can end up missing Linux
+  optional deps (`@emnapi/*`), breaking `npm ci` in Docker/CI. Fix:
+  `rm -rf node_modules package-lock.json && npm install`, then re-`prisma generate`.
 
 ## How AI was used on this project
 

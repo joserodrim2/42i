@@ -48,8 +48,9 @@ Everything below also runs in CI on every push
 web lint + build, and a job that boots the full `docker compose` stack and hits
 the health endpoint.
 
-**Unit tests** (business logic — status lifecycle, effort rollup, tree rules).
-No database needed:
+**Unit tests** — 49 total: the pure domain (status lifecycle, effort rollup,
+tree/cycle rules) plus the service layer with a mocked database. No database
+needed:
 
 ```bash
 docker compose run --rm --no-deps api npm test
@@ -71,8 +72,8 @@ npm install
 docker compose up -d db
 cp .env.example .env
 npx prisma migrate deploy
-npm test          # unit tests (37)
-npm run test:e2e  # end-to-end tests (8)
+npm test          # unit tests (49 — domain + service)
+npm run test:e2e  # end-to-end tests (10)
 ```
 
 </details>
