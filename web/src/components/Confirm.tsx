@@ -30,7 +30,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
         title={pending?.options.title ?? ''}
       >
         {pending?.options.message && (
-          <p className="mt-0 text-sm text-slate-600">{pending.options.message}</p>
+          <p className="mt-0 text-sm text-muted">{pending.options.message}</p>
         )}
         <div className="mt-4 flex justify-end gap-2">
           <button type="button" className="btn btn-ghost" onClick={() => settle(false)}>

@@ -9,9 +9,9 @@ import {
 let nextId = 0
 
 const BORDER: Record<ToastKind, string> = {
-  success: 'border-l-emerald-500',
-  error: 'border-l-red-500',
-  info: 'border-l-brand-500',
+  success: 'border-l-done-fg',
+  error: 'border-l-blocked-fg',
+  info: 'border-l-brand-600',
 }
 
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -48,7 +48,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             type="button"
             onClick={() => dismiss(t.id)}
             title="Dismiss"
-            className={`animate-toast-in cursor-pointer rounded-lg border border-slate-200 border-l-4 bg-white px-3.5 py-2.5 text-left text-sm text-slate-800 shadow-lg hover:bg-slate-50 ${BORDER[t.kind]}`}
+            className={`animate-toast-in cursor-pointer rounded-lg border border-line border-l-4 bg-white px-3.5 py-2.5 text-left text-sm text-ink shadow-lg hover:bg-page ${BORDER[t.kind]}`}
           >
             {t.message}
           </button>

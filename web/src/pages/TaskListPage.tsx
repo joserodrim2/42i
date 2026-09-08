@@ -24,8 +24,8 @@ const SORT_COLUMNS: { key: string; label: string }[] = [
   { key: 'updatedAt', label: 'Updated' },
 ]
 
-const TH = 'cursor-pointer select-none px-2.5 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-400'
-const TD = 'border-b border-slate-200 px-2.5 py-2.5 align-middle'
+const TH = 'cursor-pointer select-none px-2.5 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-backlog-fg'
+const TD = 'border-b border-line px-2.5 py-2.5 align-middle'
 
 export function TaskListPage() {
   const [search, setSearch] = useState('')
@@ -145,9 +145,9 @@ export function TaskListPage() {
           </div>
         </div>
 
-        {list.isLoading && <p className="text-slate-500">Loading tasks…</p>}
+        {list.isLoading && <p className="text-muted">Loading tasks…</p>}
         {list.isError && (
-          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+          <p className="rounded-lg border border-blocked bg-blocked px-3 py-2 text-sm text-blocked-fg">
             Could not load tasks.
           </p>
         )}
@@ -171,7 +171,7 @@ export function TaskListPage() {
                 </thead>
                 <tbody>
                   {list.data.data.map((task) => (
-                    <tr key={task.id} className="hover:bg-slate-50">
+                    <tr key={task.id} className="hover:bg-page">
                       <td className={TD}>
                         <Link
                           to={`/tasks/${task.id}`}
@@ -187,7 +187,7 @@ export function TaskListPage() {
                         <PriorityBadge priority={task.priority} />
                       </td>
                       <td className={TD}>{effortLabel(task)}</td>
-                      <td className={`${TD} text-xs text-slate-500`}>
+                      <td className={`${TD} text-xs text-muted`}>
                         {new Date(task.updatedAt).toLocaleDateString()}
                       </td>
                       <td className={TD}>{task.assignee ?? '—'}</td>
@@ -201,7 +201,7 @@ export function TaskListPage() {
                     <tr>
                       <td
                         colSpan={8}
-                        className={`${TD} text-center text-slate-500`}
+                        className={`${TD} text-center text-muted`}
                       >
                         No tasks match these filters.
                       </td>
@@ -212,7 +212,7 @@ export function TaskListPage() {
             </div>
 
             <div className="flex items-center justify-end gap-2">
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-muted">
                 {list.data.total} task(s) · page {list.data.page} of{' '}
                 {list.data.totalPages}
               </span>

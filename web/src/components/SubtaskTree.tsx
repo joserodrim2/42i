@@ -11,14 +11,14 @@ interface Props {
 
 export function SubtaskTree({ nodes, onAddSubtask, onDelete }: Props) {
   if (nodes.length === 0) {
-    return <p className="text-sm text-slate-500">No subtasks yet.</p>
+    return <p className="text-sm text-muted">No subtasks yet.</p>
   }
 
   return (
     <div>
       {nodes.map((node) => (
-        <div className="ml-2 border-l-2 border-slate-200 pl-3" key={node.id}>
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-dashed border-slate-200 py-1.5">
+        <div className="ml-2 border-l-2 border-line pl-3" key={node.id}>
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-dashed border-line py-1.5">
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge status={node.status} />
               <PriorityBadge priority={node.priority} />
@@ -26,16 +26,16 @@ export function SubtaskTree({ nodes, onAddSubtask, onDelete }: Props) {
                 {node.title}
               </Link>
               {node.subtasks.length > 0 ? (
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-muted">
                   · Σ {rollupLeafEffort(node)} pts
                 </span>
               ) : (
                 node.effort !== null && (
-                  <span className="text-xs text-slate-500">· {node.effort} pts</span>
+                  <span className="text-xs text-muted">· {node.effort} pts</span>
                 )
               )}
               {node.assignee && (
-                <span className="text-xs text-slate-500">· {node.assignee}</span>
+                <span className="text-xs text-muted">· {node.assignee}</span>
               )}
             </div>
             <div className="flex gap-1">

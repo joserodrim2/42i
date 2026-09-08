@@ -30,7 +30,7 @@ interface Props {
 type FieldName = 'title' | 'description' | 'assignee' | 'effort'
 
 const inputCls = (invalid: boolean) =>
-  `field${invalid ? ' border-red-400 focus:border-red-500 focus:ring-red-100' : ''}`
+  `field${invalid ? ' border-blocked-fg focus:border-blocked-fg focus:ring-blocked/40' : ''}`
 
 export function TaskForm({
   mode,
@@ -109,7 +109,7 @@ export function TaskForm({
     <form className="flex flex-col gap-3.5" onSubmit={handleSubmit} noValidate>
       <div>
         <label className="form-label" htmlFor="title">
-          Title <span className="text-red-500">*</span>
+          Title <span className="text-blocked-fg">*</span>
         </label>
         <input
           id="title"
@@ -122,7 +122,7 @@ export function TaskForm({
           aria-invalid={!!show('title')}
           autoFocus
         />
-        {show('title') && <p className="mt-1 text-xs text-red-600">{errors.title}</p>}
+        {show('title') && <p className="mt-1 text-xs text-blocked-fg">{errors.title}</p>}
       </div>
 
       <div>
@@ -137,8 +137,8 @@ export function TaskForm({
           onChange={(e) => setDescription(e.target.value)}
           onBlur={() => markTouched('description')}
         />
-        <div className="mt-1 flex justify-between text-xs text-slate-400">
-          <span className="text-red-600">{show('description') ? errors.description : ''}</span>
+        <div className="mt-1 flex justify-between text-xs text-backlog-fg">
+          <span className="text-blocked-fg">{show('description') ? errors.description : ''}</span>
           {description.length > FIELD_LIMITS.description - 500 && (
             <span>
               {description.length}/{FIELD_LIMITS.description}
@@ -206,11 +206,11 @@ export function TaskForm({
             aria-invalid={!!show('effort')}
           />
           {hasSubtasks ? (
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-muted">
               Derived from subtasks — estimate the subtasks instead.
             </p>
           ) : show('effort') ? (
-            <p className="mt-1 text-xs text-red-600">{errors.effort}</p>
+            <p className="mt-1 text-xs text-blocked-fg">{errors.effort}</p>
           ) : (
             <div className="mt-1.5 flex flex-wrap gap-1">
               {EFFORT_POINTS.map((n) => (
@@ -245,13 +245,13 @@ export function TaskForm({
             aria-invalid={!!show('assignee')}
           />
           {show('assignee') && (
-            <p className="mt-1 text-xs text-red-600">{errors.assignee}</p>
+            <p className="mt-1 text-xs text-blocked-fg">{errors.assignee}</p>
           )}
         </div>
       </div>
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+        <p className="rounded-lg border border-blocked bg-blocked px-3 py-2 text-sm text-blocked-fg">
           {error}
         </p>
       )}

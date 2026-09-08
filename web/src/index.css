@@ -1,11 +1,46 @@
 @import 'tailwindcss';
 
+/* ── Task Handler palette ───────────────────────────────────────────────
+   Tailwind v4 turns every --color-* token into utilities:
+   --color-todo  →  bg-todo / text-todo / border-todo …
+   ------------------------------------------------------------------- */
 @theme {
+  /* Brand */
+  --color-ink: #0f172a; /* ink navy */
   --color-brand-50: #eef2ff;
   --color-brand-100: #e0e7ff;
   --color-brand-500: #6366f1;
-  --color-brand-600: #4f46e5;
+  --color-brand-600: #4f46e5; /* indigo accent */
   --color-brand-700: #4338ca;
+
+  /* Neutrals */
+  --color-page: #f8fafc; /* page background */
+  --color-line: #e2e8f0; /* borders */
+  --color-muted: #64748b; /* secondary text */
+
+  /* Status — surface + foreground */
+  --color-backlog: #f1f5f9;
+  --color-backlog-fg: #94a3b8;
+  --color-todo: #f1f5f9;
+  --color-todo-fg: #64748b;
+  --color-progress: #dbeafe;
+  --color-progress-fg: #2563eb;
+  --color-review: #ede9fe; /* no palette entry for review — violet, tweak if needed */
+  --color-review-fg: #7c3aed;
+  --color-done: #dcfce7;
+  --color-done-fg: #16a34a;
+  --color-blocked: #fee2e2;
+  --color-blocked-fg: #dc2626;
+
+  /* Priority — surface + foreground */
+  --color-prio-low: #f1f5f9;
+  --color-prio-low-fg: #64748b;
+  --color-prio-medium: #fef3c7;
+  --color-prio-medium-fg: #d97706;
+  --color-prio-high: #ffedd5;
+  --color-prio-high-fg: #ea580c;
+  --color-prio-urgent: #fee2e2;
+  --color-prio-urgent-fg: #dc2626;
 }
 
 @layer base {
@@ -15,7 +50,7 @@
       sans-serif;
   }
   body {
-    @apply bg-slate-50 text-slate-800;
+    @apply bg-page text-ink;
   }
   h1,
   h2,
@@ -27,8 +62,8 @@
 @layer components {
   .btn {
     @apply inline-flex items-center justify-center gap-1.5 rounded-lg border
-      border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700
-      transition-colors hover:bg-slate-100 disabled:cursor-not-allowed
+      border-line bg-white px-3 py-1.5 text-sm font-medium text-slate-700
+      transition-colors hover:bg-page disabled:cursor-not-allowed
       disabled:opacity-50;
   }
   .btn-sm {
@@ -38,25 +73,24 @@
     @apply border-brand-600 bg-brand-600 text-white hover:bg-brand-700;
   }
   .btn-danger {
-    @apply border-red-300 text-red-600 hover:bg-red-50;
+    @apply border-blocked text-blocked-fg hover:bg-blocked/50;
   }
   .btn-ghost {
-    @apply border-transparent bg-transparent hover:bg-slate-100;
+    @apply border-transparent bg-transparent hover:bg-page;
   }
 
   .card {
-    @apply rounded-lg border border-slate-200 bg-white shadow-sm;
+    @apply rounded-lg border border-line bg-white shadow-sm;
   }
 
   .field {
-    @apply w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5
-      text-sm text-slate-800 outline-none focus:border-brand-500
-      focus:ring-2 focus:ring-brand-100 disabled:bg-slate-100
-      disabled:text-slate-400;
+    @apply w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-sm
+      text-ink outline-none focus:border-brand-500 focus:ring-2
+      focus:ring-brand-100 disabled:bg-page disabled:text-muted;
   }
 
   .form-label {
-    @apply mb-1 block text-xs font-semibold text-slate-500;
+    @apply mb-1 block text-xs font-semibold text-muted;
   }
 
   .badge {
@@ -67,7 +101,7 @@
 
 /* Native <dialog> used by Modal / Confirm */
 dialog {
-  @apply m-auto rounded-xl border border-slate-200 p-5 shadow-2xl;
+  @apply m-auto rounded-xl border border-line p-5 shadow-2xl;
   width: min(460px, 92vw);
 }
 dialog::backdrop {

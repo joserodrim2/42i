@@ -33,11 +33,11 @@ export function TaskDetailPage() {
   const [subtaskParent, setSubtaskParent] = useState<string | null>(null)
   const addSubtask = useAddSubtask(subtaskParent ?? id)
 
-  if (task.isLoading) return <p className="text-slate-500">Loading…</p>
+  if (task.isLoading) return <p className="text-muted">Loading…</p>
   if (task.isError || !task.data)
     return (
       <div className="flex flex-col gap-3">
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+        <p className="rounded-lg border border-blocked bg-blocked px-3 py-2 text-sm text-blocked-fg">
           Task not found.
         </p>
         <Link to="/" className="text-brand-600 hover:underline">
@@ -88,7 +88,7 @@ export function TaskDetailPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <div className="mb-2 text-sm text-slate-500">
+        <div className="mb-2 text-sm text-muted">
           <Link to="/" className="text-brand-600 hover:underline">
             All tasks
           </Link>
@@ -132,10 +132,10 @@ export function TaskDetailPage() {
 
           <h2 className="mb-1 mt-3 text-xl font-semibold">{t.title}</h2>
           <p className="mt-0 whitespace-pre-wrap text-sm">
-            {t.description || <span className="text-slate-500">No description.</span>}
+            {t.description || <span className="text-muted">No description.</span>}
           </p>
 
-          <div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-500">
+          <div className="mt-2 flex flex-wrap gap-4 text-xs text-muted">
             <span>
               {t.subtasks.length > 0
                 ? `Estimate: ${t.rollup.totalEstimated} pts (rolled up)`
@@ -147,7 +147,7 @@ export function TaskDetailPage() {
           </div>
 
           <div className="mt-3.5 flex flex-wrap items-center gap-1.5">
-            <span className="text-xs text-slate-500">Move to:</span>
+            <span className="text-xs text-muted">Move to:</span>
             {ALLOWED_TRANSITIONS[t.status].map((next) => (
               <button
                 key={next}

@@ -1,19 +1,19 @@
 import type { TaskPriority, TaskStatus } from '../lib/types'
 
 const STATUS: Record<TaskStatus, { label: string; cls: string }> = {
-  BACKLOG: { label: 'Backlog', cls: 'bg-slate-100 text-slate-600' },
-  TODO: { label: 'To do', cls: 'bg-sky-100 text-sky-700' },
-  IN_PROGRESS: { label: 'In progress', cls: 'bg-amber-100 text-amber-700' },
-  IN_REVIEW: { label: 'In review', cls: 'bg-violet-100 text-violet-700' },
-  DONE: { label: 'Done', cls: 'bg-emerald-100 text-emerald-700' },
-  BLOCKED: { label: 'Blocked', cls: 'bg-red-100 text-red-700' },
+  BACKLOG: { label: 'Backlog', cls: 'bg-backlog text-backlog-fg' },
+  TODO: { label: 'To do', cls: 'bg-todo text-todo-fg' },
+  IN_PROGRESS: { label: 'In progress', cls: 'bg-progress text-progress-fg' },
+  IN_REVIEW: { label: 'In review', cls: 'bg-review text-review-fg' },
+  DONE: { label: 'Done', cls: 'bg-done text-done-fg' },
+  BLOCKED: { label: 'Blocked', cls: 'bg-blocked text-blocked-fg' },
 }
 
 const PRIORITY: Record<TaskPriority, string> = {
-  LOW: 'bg-slate-100 text-slate-500',
-  MEDIUM: 'bg-sky-100 text-sky-700',
-  HIGH: 'bg-orange-100 text-orange-700',
-  URGENT: 'bg-red-200 text-red-800',
+  LOW: 'bg-prio-low text-prio-low-fg',
+  MEDIUM: 'bg-prio-medium text-prio-medium-fg',
+  HIGH: 'bg-prio-high text-prio-high-fg',
+  URGENT: 'bg-prio-urgent text-prio-urgent-fg',
 }
 
 export function StatusBadge({ status }: { status: TaskStatus }) {

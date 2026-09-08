@@ -5,7 +5,7 @@ import { TaskDetailPage } from './pages/TaskDetailPage'
 export default function App() {
   return (
     <>
-      <header className="border-b border-slate-200 bg-white px-5 py-3.5">
+      <header className="border-b border-line bg-white px-5 py-3.5">
         <div className="mx-auto flex max-w-5xl flex-wrap items-baseline gap-2">
           <h1 className="text-lg font-semibold">
             <Link to="/" className="text-inherit no-underline">
@@ -19,7 +19,7 @@ export default function App() {
               Task Handler
             </Link>
           </h1>
-          <span className="text-sm text-slate-500">
+          <span className="text-sm text-muted">
             Track, prioritise and estimate the team&apos;s work
           </span>
         </div>
