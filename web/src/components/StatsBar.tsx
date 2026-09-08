@@ -14,7 +14,10 @@ export function StatsBar({ stats, title }: Props) {
     ['Blocked', stats.blocked],
     ['Completed', stats.completed],
     ['Total estimated', stats.totalEstimated],
-    ['Tasks', `${stats.taskCount} (${stats.unestimatedCount} unestimated)`],
+    [
+      'Leaf tasks',
+      `${stats.estimatedCount}/${stats.leafCount} estimated`,
+    ],
   ]
 
   return (

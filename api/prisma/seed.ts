@@ -7,6 +7,7 @@ interface SeedTask {
   description?: string;
   status?: TaskStatus;
   priority?: TaskPriority;
+  /** Only meaningful on leaves (tasks without subtasks); ignored otherwise. */
   effort?: number;
   assignee?: string;
   subtasks?: SeedTask[];
@@ -32,7 +33,6 @@ const TASKS: SeedTask[] = [
         title: 'Build the CRUD API',
         status: TaskStatus.IN_PROGRESS,
         priority: TaskPriority.HIGH,
-        effort: 5,
         assignee: 'Jose',
         subtasks: [
           {
@@ -59,7 +59,6 @@ const TASKS: SeedTask[] = [
         title: 'Build the web UI',
         status: TaskStatus.TODO,
         priority: TaskPriority.MEDIUM,
-        effort: 8,
         subtasks: [
           {
             title: 'Task list view',
@@ -105,13 +104,14 @@ async function createTree(
   node: SeedTask,
   parentId: string | null,
 ): Promise<void> {
+  const isLeaf = !node.subtasks || node.subtasks.length === 0;
   const created = await prisma.task.create({
     data: {
       title: node.title,
       description: node.description ?? '',
       status: node.status ?? TaskStatus.BACKLOG,
       priority: node.priority ?? TaskPriority.MEDIUM,
-      effort: node.effort ?? null,
+      effort: isLeaf ? (node.effort ?? null) : null,
       assignee: node.assignee ?? null,
       parentId,
     },

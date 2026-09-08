@@ -22,9 +22,13 @@ arbitrary depth; effort estimates roll up through the hierarchy. Monorepo:
 - The status lifecycle graph is defined once in `task-status.ts`. The web app
   mirrors it in `web/src/lib/types.ts` (`ALLOWED_TRANSITIONS`) — keep the two in
   sync if you change transitions.
-- Effort bucket semantics (not started / in progress / blocked / completed) are
-  documented in `effort.ts` and `README.md`. Changing them means updating both
-  plus the tests.
+- Effort model: **story points, leaves only**. Only leaf tasks carry an
+  estimate; parents are the sum of their subtree. Enforced in `effort.ts`
+  (aggregation ignores non-leaf effort) and `tasks.service.ts` (rejects
+  estimating a parent; clears a leaf's estimate when it gains a subtask).
+  Bucket semantics (not started / in progress / blocked / completed) live in
+  `effort.ts` + `README.md`. Changing any of this means updating both plus the
+  tests. `web/src/lib/effort.ts` mirrors the rollup for display.
 
 ## Commands
 

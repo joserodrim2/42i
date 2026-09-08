@@ -12,6 +12,13 @@ export const TASK_PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const
 export type TaskPriority = (typeof TASK_PRIORITIES)[number]
 
 /**
+ * Effort is measured in **story points** on a Fibonacci scale. Only leaf tasks
+ * carry an estimate; a task with subtasks shows the rolled-up sum of its
+ * subtree (the API enforces this).
+ */
+export const EFFORT_SCALE = [1, 2, 3, 5, 8, 13] as const
+
+/**
  * Mirrors the lifecycle graph in api/src/tasks/domain/task-status.ts.
  * Used to offer only valid next states in the UI; the API enforces it too.
  */
@@ -45,6 +52,7 @@ export interface EffortStats {
   completed: number
   remaining: number
   taskCount: number
+  leafCount: number
   estimatedCount: number
   unestimatedCount: number
 }

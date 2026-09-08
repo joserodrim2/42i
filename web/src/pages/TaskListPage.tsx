@@ -5,6 +5,7 @@ import { Modal } from '../components/Modal'
 import { StatsBar } from '../components/StatsBar'
 import { TaskForm } from '../components/TaskForm'
 import { useCreateTask, useStats, useTaskList } from '../hooks/useTasks'
+import { effortLabel } from '../lib/effort'
 import {
   TASK_PRIORITIES,
   TASK_STATUSES,
@@ -17,7 +18,7 @@ const SORT_COLUMNS: { key: string; label: string }[] = [
   { key: 'title', label: 'Title' },
   { key: 'status', label: 'Status' },
   { key: 'priority', label: 'Priority' },
-  { key: 'effort', label: 'Effort' },
+  { key: 'effort', label: 'Points' },
   { key: 'updatedAt', label: 'Updated' },
 ]
 
@@ -61,7 +62,12 @@ export function TaskListPage() {
 
   return (
     <div className="stack" style={{ gap: '1.5rem' }}>
-      {stats.data && <StatsBar stats={stats.data} title="Whole team — all tasks and subtasks" />}
+      {stats.data && (
+        <StatsBar
+          stats={stats.data}
+          title="Whole team — story points across every task and subtask"
+        />
+      )}
 
       <section className="stack">
         <div className="row spread">
@@ -158,7 +164,7 @@ export function TaskListPage() {
                       <td>
                         <PriorityBadge priority={task.priority} />
                       </td>
-                      <td>{task.effort ?? '—'}</td>
+                      <td>{effortLabel(task)}</td>
                       <td className="muted small">
                         {new Date(task.updatedAt).toLocaleDateString()}
                       </td>

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import {
   ALLOWED_TRANSITIONS,
+  EFFORT_SCALE,
   TASK_PRIORITIES,
   TASK_STATUSES,
   type Task,
@@ -11,13 +12,23 @@ import {
 interface Props {
   mode: 'create' | 'edit'
   initial?: Partial<Task>
+  /** When editing a task that has subtasks, its estimate is derived — lock the field. */
+  hasSubtasks?: boolean
   submitting?: boolean
   error?: string | null
   onSubmit: (input: TaskInput) => void
   onCancel?: () => void
 }
 
-export function TaskForm({ mode, initial, submitting, error, onSubmit, onCancel }: Props) {
+export function TaskForm({
+  mode,
+  initial,
+  hasSubtasks = false,
+  submitting,
+  error,
+  onSubmit,
+  onCancel,
+}: Props) {
   const [title, setTitle] = useState(initial?.title ?? '')
   const [description, setDescription] = useState(initial?.description ?? '')
   const [status, setStatus] = useState<TaskStatus>(initial?.status ?? 'BACKLOG')
@@ -37,14 +48,18 @@ export function TaskForm({ mode, initial, submitting, error, onSubmit, onCancel 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
     const trimmedEffort = effort.trim()
-    onSubmit({
+    const input: TaskInput = {
       title: title.trim(),
       description: description.trim(),
       status,
       priority,
-      effort: trimmedEffort === '' ? null : Number(trimmedEffort),
       assignee: assignee.trim() === '' ? null : assignee.trim(),
-    })
+    }
+    // A task with subtasks has a derived estimate — never send `effort`.
+    if (!hasSubtasks) {
+      input.effort = trimmedEffort === '' ? null : Number(trimmedEffort)
+    }
+    onSubmit(input)
   }
 
   return (
@@ -104,16 +119,41 @@ export function TaskForm({ mode, initial, submitting, error, onSubmit, onCancel 
 
       <div className="row">
         <div style={{ flex: 1 }}>
-          <label htmlFor="effort">Effort estimate (optional)</label>
+          <label htmlFor="effort">Estimate — story points (optional)</label>
           <input
             id="effort"
             type="number"
             min={0}
-            step="0.5"
+            step="1"
             placeholder="e.g. 3"
-            value={effort}
+            value={hasSubtasks ? '' : effort}
+            disabled={hasSubtasks}
             onChange={(e) => setEffort(e.target.value)}
           />
+          {hasSubtasks ? (
+            <p className="small muted" style={{ margin: '0.3rem 0 0' }}>
+              Derived from subtasks — estimate the subtasks instead.
+            </p>
+          ) : (
+            <div className="row" style={{ gap: '0.3rem', marginTop: '0.35rem' }}>
+              {EFFORT_SCALE.map((n) => (
+                <button
+                  type="button"
+                  key={n}
+                  className="small ghost"
+                  aria-pressed={effort === String(n)}
+                  style={
+                    effort === String(n)
+                      ? { borderColor: 'var(--primary)', color: 'var(--primary)' }
+                      : undefined
+                  }
+                  onClick={() => setEffort(effort === String(n) ? '' : String(n))}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <div style={{ flex: 1 }}>
           <label htmlFor="assignee">Assignee (optional)</label>

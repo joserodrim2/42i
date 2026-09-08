@@ -128,18 +128,30 @@ offers only the valid next states.
 
 ### Estimations
 
-Effort is an optional non-negative number (points or hours — team's choice).
+Effort is measured in **story points** on a Fibonacci scale (1, 2, 3, 5, 8, 13),
+the same unit for every task. The stored value is just an optional non-negative
+number, so the scale is a convention (the form offers quick-picks), not a
+hard constraint.
+
+**Only leaf tasks are estimated.** A task that has subtasks is estimated
+implicitly by the sum of its subtree, so:
+
+- Setting an estimate on a task that has subtasks is rejected (`400`).
+- When a leaf task gains its first subtask, its own estimate is dropped
+  (it becomes derived). Model overhead work as an explicit subtask.
+
 Figures are computed over the **full subtask hierarchy** (`computeEffortStats`
-in `api/src/tasks/domain/effort.ts`):
+in `api/src/tasks/domain/effort.ts`), counting leaf tasks only:
 
 | Figure | Meaning |
 | ------ | ------- |
-| `notStarted` | sum of effort in `BACKLOG` + `TODO` |
-| `inProgress` | sum of effort in `IN_PROGRESS` + `IN_REVIEW` |
-| `blocked` | sum of effort in `BLOCKED` (started but stalled, reported apart) |
-| `completed` | sum of effort in `DONE` |
+| `notStarted` | sum of leaf points in `BACKLOG` + `TODO` |
+| `inProgress` | sum of leaf points in `IN_PROGRESS` + `IN_REVIEW` |
+| `blocked` | sum of leaf points in `BLOCKED` (started but stalled, reported apart) |
+| `completed` | sum of leaf points in `DONE` |
 | `remaining` | `notStarted` + `inProgress` + `blocked` |
-| `totalEstimated` | sum of every estimate, any status |
+| `totalEstimated` | sum of every leaf's points, any status |
+| `leafCount` / `estimatedCount` | leaf tasks, and how many have a point value |
 
 `GET /api/tasks/stats` returns these for the whole system; each task's detail
 response returns them for that task's subtree.
@@ -167,13 +179,13 @@ Base path: `/api`. All bodies are JSON.
 | `GET` | `/tasks/:id` | One task with its full nested `subtasks`, `rollup`, `parent` and `ancestors`. |
 | `POST` | `/tasks` | Create a task. Body: `title` (required), `description`, `status`, `priority`, `effort`, `assignee`, `parentId`. |
 | `POST` | `/tasks/:id/subtasks` | Create a task nested under `:id`. |
-| `PATCH` | `/tasks/:id` | Partial update. `effort` and `parentId` accept `null` to clear / un-nest. Status changes are checked against the lifecycle. |
+| `PATCH` | `/tasks/:id` | Partial update. `effort` and `parentId` accept `null` to clear / un-nest. Status changes are checked against the lifecycle; setting `effort` on a task with subtasks is rejected. |
 | `DELETE` | `/tasks/:id` | Delete the task and its subtree. Returns `{ id, deletedCount }`. |
 
 ```bash
-# create a task, then a subtask under it
+# create a parent task, then estimated leaf subtasks under it
 curl -s localhost:3000/api/tasks -H 'content-type: application/json' \
-  -d '{"title":"Release v1","priority":"HIGH","effort":5}'
+  -d '{"title":"Release v1","priority":"HIGH"}'
 
 curl -s localhost:3000/api/tasks/<id>/subtasks -H 'content-type: application/json' \
   -d '{"title":"Write changelog","status":"TODO","effort":2}'

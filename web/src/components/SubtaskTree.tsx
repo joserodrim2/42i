@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { rollupLeafEffort } from '../lib/effort'
 import type { TaskNode } from '../lib/types'
 import { PriorityBadge, StatusBadge } from './Badges'
 
@@ -22,8 +23,12 @@ export function SubtaskTree({ nodes, onAddSubtask, onDelete }: Props) {
               <StatusBadge status={node.status} />
               <PriorityBadge priority={node.priority} />
               <Link to={`/tasks/${node.id}`}>{node.title}</Link>
-              {node.effort !== null && (
-                <span className="muted small">· {node.effort} pts</span>
+              {node.subtasks.length > 0 ? (
+                <span className="muted small">· Σ {rollupLeafEffort(node)} pts</span>
+              ) : (
+                node.effort !== null && (
+                  <span className="muted small">· {node.effort} pts</span>
+                )
               )}
               {node.assignee && (
                 <span className="muted small">· {node.assignee}</span>

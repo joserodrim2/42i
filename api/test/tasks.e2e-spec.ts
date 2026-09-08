@@ -87,31 +87,64 @@ describe('Tasks API (e2e)', () => {
     await api().post('/api/tasks').send({ title: 'x', effort: -2 }).expect(400);
   });
 
-  it('supports a multi-level subtask hierarchy and rolls up effort', async () => {
-    const root = (
+  it('rolls up effort over a multi-level hierarchy, counting only leaves', async () => {
+    // Epic > Story(TODO) > [Design(TODO,3), Build(IN_PROGRESS,8)]; Epic > Docs(TODO,5)
+    const epic = (
       await api()
         .post('/api/tasks')
         .send({ title: 'Epic', status: 'IN_PROGRESS' })
     ).body;
-    const child = (
+    const story = (
       await api()
-        .post(`/api/tasks/${root.id}/subtasks`)
-        .send({ title: 'Story', status: 'TODO', effort: 5 })
+        .post(`/api/tasks/${epic.id}/subtasks`)
+        .send({ title: 'Story', status: 'TODO' })
     ).body;
     await api()
-      .post(`/api/tasks/${child.id}/subtasks`)
-      .send({ title: 'Sub-sub', status: 'IN_PROGRESS', effort: 8 })
+      .post(`/api/tasks/${story.id}/subtasks`)
+      .send({ title: 'Design', status: 'TODO', effort: 3 })
+      .expect(201);
+    await api()
+      .post(`/api/tasks/${story.id}/subtasks`)
+      .send({ title: 'Build', status: 'IN_PROGRESS', effort: 8 });
+    await api()
+      .post(`/api/tasks/${epic.id}/subtasks`)
+      .send({ title: 'Docs', status: 'TODO', effort: 5 });
+
+    const detail = await api().get(`/api/tasks/${epic.id}`).expect(200);
+    expect(detail.body.subtasks).toHaveLength(2);
+    expect(detail.body.rollup).toMatchObject({
+      notStarted: 8, // Design 3 + Docs 5
+      inProgress: 8, // Build 8
+      totalEstimated: 16,
+      taskCount: 5,
+      leafCount: 3, // Design, Build, Docs
+    });
+  });
+
+  it('drops a task’s own estimate once it gains a subtask', async () => {
+    const parent = (
+      await api().post('/api/tasks').send({ title: 'Was a leaf', effort: 5 })
+    ).body;
+    expect(parent.effort).toBe(5);
+
+    await api()
+      .post(`/api/tasks/${parent.id}/subtasks`)
+      .send({ title: 'child', effort: 2 })
       .expect(201);
 
-    const detail = await api().get(`/api/tasks/${root.id}`).expect(200);
-    expect(detail.body.subtasks).toHaveLength(1);
-    expect(detail.body.subtasks[0].subtasks).toHaveLength(1);
-    expect(detail.body.rollup).toMatchObject({
-      notStarted: 5,
-      inProgress: 8,
-      totalEstimated: 13,
-      taskCount: 3,
-    });
+    const reloaded = await api().get(`/api/tasks/${parent.id}`).expect(200);
+    expect(reloaded.body.effort).toBeNull();
+    expect(reloaded.body.rollup.totalEstimated).toBe(2);
+  });
+
+  it('rejects giving an own estimate to a task that has subtasks', async () => {
+    const parent = (await api().post('/api/tasks').send({ title: 'P' })).body;
+    await api().post(`/api/tasks/${parent.id}/subtasks`).send({ title: 'C' });
+
+    await api()
+      .patch(`/api/tasks/${parent.id}`)
+      .send({ effort: 8 })
+      .expect(400);
   });
 
   it('prevents creating a cycle when re-parenting', async () => {
@@ -138,21 +171,23 @@ describe('Tasks API (e2e)', () => {
     expect(await prisma.task.count()).toBe(0);
   });
 
-  it('exposes global effort stats over the full hierarchy', async () => {
+  it('exposes global effort stats over the full hierarchy (leaves only)', async () => {
     const root = (
-      await api()
-        .post('/api/tasks')
-        .send({ title: 'R', status: 'TODO', effort: 2 })
+      await api().post('/api/tasks').send({ title: 'R', status: 'TODO' })
     ).body;
     await api()
       .post(`/api/tasks/${root.id}/subtasks`)
-      .send({ title: 'child', status: 'DONE', effort: 10 });
+      .send({ title: 'a', status: 'TODO', effort: 2 });
+    await api()
+      .post(`/api/tasks/${root.id}/subtasks`)
+      .send({ title: 'b', status: 'DONE', effort: 10 });
 
     const { body } = await api().get('/api/tasks/stats').expect(200);
     expect(body.totalEstimated).toBe(12);
     expect(body.notStarted).toBe(2);
     expect(body.completed).toBe(10);
-    expect(body.byStatus).toMatchObject({ TODO: 1, DONE: 1 });
+    expect(body.leafCount).toBe(2);
+    expect(body.byStatus).toMatchObject({ TODO: 2, DONE: 1 });
   });
 
   it('filters, sorts and paginates the list view', async () => {

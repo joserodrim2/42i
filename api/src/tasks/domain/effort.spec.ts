@@ -1,5 +1,12 @@
 import { computeEffortStats, EffortNode, normalizeEffort } from './effort';
 
+const leaf = (
+  id: string,
+  status: EffortNode['status'],
+  effort: number | null,
+  parentId: string | null = null,
+): EffortNode => ({ id, parentId, status, effort });
+
 describe('normalizeEffort', () => {
   it('passes through null / undefined as null', () => {
     expect(normalizeEffort(null)).toBeNull();
@@ -33,19 +40,20 @@ describe('computeEffortStats', () => {
       completed: 0,
       remaining: 0,
       taskCount: 0,
+      leafCount: 0,
       estimatedCount: 0,
       unestimatedCount: 0,
     });
   });
 
-  it('buckets effort by status across the whole set', () => {
+  it('buckets leaf effort by status across the whole set', () => {
     const nodes: EffortNode[] = [
-      { status: 'BACKLOG', effort: 5 },
-      { status: 'TODO', effort: 3 },
-      { status: 'IN_PROGRESS', effort: 8 },
-      { status: 'IN_REVIEW', effort: 2 },
-      { status: 'BLOCKED', effort: 1 },
-      { status: 'DONE', effort: 13 },
+      leaf('a', 'BACKLOG', 5),
+      leaf('b', 'TODO', 3),
+      leaf('c', 'IN_PROGRESS', 8),
+      leaf('d', 'IN_REVIEW', 2),
+      leaf('e', 'BLOCKED', 1),
+      leaf('f', 'DONE', 13),
     ];
 
     const stats = computeEffortStats(nodes);
@@ -56,27 +64,45 @@ describe('computeEffortStats', () => {
     expect(stats.completed).toBe(13);
     expect(stats.remaining).toBe(19); // 8 + 10 + 1
     expect(stats.totalEstimated).toBe(32);
+    expect(stats.leafCount).toBe(6);
   });
 
-  it('counts unestimated tasks separately and treats their effort as 0', () => {
+  it('ignores a parent task’s own estimate — only leaves count', () => {
+    // parent(100) > childA(5, TODO) > grandchild(8, IN_PROGRESS); childB(3, TODO)
+    const nodes: EffortNode[] = [
+      { id: 'p', parentId: null, status: 'IN_PROGRESS', effort: 100 },
+      { id: 'a', parentId: 'p', status: 'TODO', effort: 5 },
+      { id: 'g', parentId: 'a', status: 'IN_PROGRESS', effort: 8 },
+      { id: 'b', parentId: 'p', status: 'TODO', effort: 3 },
+    ];
+
+    const stats = computeEffortStats(nodes);
+
+    expect(stats.taskCount).toBe(4);
+    expect(stats.leafCount).toBe(2); // g and b (a and p have children)
+    expect(stats.totalEstimated).toBe(11); // 8 + 3, the 100 and the 5 are ignored
+    expect(stats.notStarted).toBe(3);
+    expect(stats.inProgress).toBe(8);
+  });
+
+  it('counts leaves without an estimate separately (effort treated as 0)', () => {
     const stats = computeEffortStats([
-      { status: 'TODO', effort: 4 },
-      { status: 'TODO', effort: null },
-      { status: 'IN_PROGRESS' },
+      leaf('a', 'TODO', 4),
+      leaf('b', 'TODO', null),
+      { id: 'c', parentId: null, status: 'IN_PROGRESS' },
     ]);
 
-    expect(stats.taskCount).toBe(3);
+    expect(stats.leafCount).toBe(3);
     expect(stats.estimatedCount).toBe(1);
     expect(stats.unestimatedCount).toBe(2);
     expect(stats.notStarted).toBe(4);
-    expect(stats.inProgress).toBe(0);
     expect(stats.totalEstimated).toBe(4);
   });
 
   it('sums fractional estimates without floating-point drift', () => {
     const stats = computeEffortStats([
-      { status: 'TODO', effort: 0.1 },
-      { status: 'TODO', effort: 0.2 },
+      leaf('a', 'TODO', 0.1),
+      leaf('b', 'TODO', 0.2),
     ]);
     expect(stats.notStarted).toBe(0.3);
     expect(stats.totalEstimated).toBe(0.3);

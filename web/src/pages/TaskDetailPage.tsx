@@ -94,7 +94,11 @@ export function TaskDetailPage() {
           </p>
 
           <div className="row small muted" style={{ gap: '1rem' }}>
-            <span>Effort: {t.effort ?? '—'}</span>
+            <span>
+              {t.subtasks.length > 0
+                ? `Estimate: ${t.rollup.totalEstimated} pts (rolled up)`
+                : `Estimate: ${t.effort === null ? '—' : `${t.effort} pts`}`}
+            </span>
             <span>Assignee: {t.assignee ?? '—'}</span>
             <span>Created {new Date(t.createdAt).toLocaleString()}</span>
             <span>Updated {new Date(t.updatedAt).toLocaleString()}</span>
@@ -117,7 +121,7 @@ export function TaskDetailPage() {
         </div>
       </div>
 
-      <StatsBar stats={t.rollup} title="This task + all its subtasks" />
+      <StatsBar stats={t.rollup} title="This task + all its subtasks (story points)" />
 
       <section className="stack">
         <div className="row spread">
@@ -138,6 +142,7 @@ export function TaskDetailPage() {
         <TaskForm
           mode="edit"
           initial={t}
+          hasSubtasks={t.subtasks.length > 0}
           submitting={updateTask.isPending}
           error={errMsg(updateTask.error)}
           onCancel={() => setEditing(false)}

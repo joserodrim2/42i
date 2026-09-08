@@ -45,16 +45,29 @@ export class TasksService {
   async create(dto: CreateTaskDto): Promise<Task> {
     if (dto.parentId) await this.assertExists(dto.parentId);
 
-    return this.prisma.task.create({
-      data: {
-        title: dto.title.trim(),
-        description: dto.description ?? '',
-        status: dto.status ?? undefined,
-        priority: dto.priority ?? undefined,
-        effort: normalizeEffort(dto.effort ?? null),
-        assignee: dto.assignee?.trim() || null,
-        parentId: dto.parentId ?? null,
-      },
+    return this.prisma.$transaction(async (tx) => {
+      const task = await tx.task.create({
+        data: {
+          title: dto.title.trim(),
+          description: dto.description ?? '',
+          status: dto.status ?? undefined,
+          priority: dto.priority ?? undefined,
+          effort: normalizeEffort(dto.effort ?? null),
+          assignee: dto.assignee?.trim() || null,
+          parentId: dto.parentId ?? null,
+        },
+      });
+
+      // The parent is no longer a leaf: its own estimate becomes derived from
+      // the subtree, so drop it (see the leaves-only model in domain/effort.ts).
+      if (dto.parentId) {
+        await tx.task.updateMany({
+          where: { id: dto.parentId, effort: { not: null } },
+          data: { effort: null },
+        });
+      }
+
+      return task;
     });
   }
 
@@ -74,6 +87,17 @@ export class TasksService {
 
     if (dto.parentId !== undefined) {
       await this.assertReparentAllowed(id, dto.parentId);
+    }
+
+    if (dto.effort !== undefined && dto.effort !== null) {
+      const childCount = await this.prisma.task.count({
+        where: { parentId: id },
+      });
+      if (childCount > 0) {
+        throw new BadRequestException(
+          'A task with subtasks cannot have its own estimate — estimate the subtasks instead',
+        );
+      }
     }
 
     const data: Prisma.TaskUpdateInput = {};
@@ -194,7 +218,7 @@ export class TasksService {
     EffortStats & { byStatus: Record<TaskStatus, number> }
   > {
     const all = await this.prisma.task.findMany({
-      select: { status: true, effort: true },
+      select: { id: true, parentId: true, status: true, effort: true },
     });
     const byStatus = Object.fromEntries(
       (Object.keys(TaskStatus) as TaskStatus[]).map((s) => [s, 0]),
