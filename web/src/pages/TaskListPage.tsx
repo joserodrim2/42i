@@ -4,6 +4,7 @@ import { PriorityBadge, StatusBadge } from '../components/Badges'
 import { Modal } from '../components/Modal'
 import { StatsBar } from '../components/StatsBar'
 import { TaskForm } from '../components/TaskForm'
+import { useToast } from '../hooks/toast'
 import { useCreateTask, useStats, useTaskList } from '../hooks/useTasks'
 import { effortLabel } from '../lib/effort'
 import {
@@ -46,6 +47,7 @@ export function TaskListPage() {
     [search, status, priority, scope, sortBy, sortDir, page],
   )
 
+  const toast = useToast()
   const list = useTaskList(query)
   const stats = useStats()
   const createTask = useCreateTask()
@@ -72,7 +74,13 @@ export function TaskListPage() {
       <section className="stack">
         <div className="row spread">
           <h2 style={{ margin: 0 }}>Tasks</h2>
-          <button className="primary" onClick={() => setCreating(true)}>
+          <button
+            className="primary"
+            onClick={() => {
+              createTask.reset()
+              setCreating(true)
+            }}
+          >
             + New task
           </button>
         </div>
@@ -208,10 +216,15 @@ export function TaskListPage() {
         <TaskForm
           mode="create"
           submitting={createTask.isPending}
-          error={createTask.error ? (createTask.error as Error).message : null}
+          error={createTask.error instanceof Error ? createTask.error.message : null}
           onCancel={() => setCreating(false)}
           onSubmit={(input) =>
-            createTask.mutate(input, { onSuccess: () => setCreating(false) })
+            createTask.mutate(input, {
+              onSuccess: (created) => {
+                setCreating(false)
+                toast.success(`Task “${created.title}” created`)
+              },
+            })
           }
         />
       </Modal>

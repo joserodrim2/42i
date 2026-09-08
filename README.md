@@ -166,6 +166,9 @@ response returns them for that task's subtree.
   status changes, the subtree effort rollup, an ancestor breadcrumb, and a
   recursive subtask tree with add / open / delete on every node.
 
+Destructive actions ask for confirmation in an in-app dialog and every mutation
+reports back with a toast — no native `alert` / `confirm`.
+
 ---
 
 ## API reference

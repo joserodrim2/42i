@@ -5,6 +5,8 @@ import { Modal } from '../components/Modal'
 import { StatsBar } from '../components/StatsBar'
 import { SubtaskTree } from '../components/SubtaskTree'
 import { TaskForm } from '../components/TaskForm'
+import { useConfirm } from '../hooks/confirm'
+import { useToast } from '../hooks/toast'
 import {
   useAddSubtask,
   useDeleteTask,
@@ -13,9 +15,15 @@ import {
 } from '../hooks/useTasks'
 import { ALLOWED_TRANSITIONS, type TaskNode } from '../lib/types'
 
+const errMsg = (e: unknown) =>
+  e instanceof Error ? e.message : 'Something went wrong'
+const errMsgOrNull = (e: unknown) => (e instanceof Error ? e.message : null)
+
 export function TaskDetailPage() {
   const { id = '' } = useParams()
   const navigate = useNavigate()
+  const toast = useToast()
+  const confirm = useConfirm()
 
   const task = useTask(id)
   const updateTask = useUpdateTask()
@@ -35,23 +43,41 @@ export function TaskDetailPage() {
     )
 
   const t = task.data
-  const errMsg = (e: unknown) => (e ? (e as Error).message : null)
 
-  function changeStatus(next: string) {
-    updateTask.mutate({ id, input: { status: next as TaskNode['status'] } })
+  function changeStatus(next: TaskNode['status']) {
+    updateTask.mutate(
+      { id, input: { status: next } },
+      {
+        onSuccess: () => toast.success(`Moved to ${next}`),
+        onError: (e) => toast.error(errMsg(e)),
+      },
+    )
   }
 
-  function handleDelete(target: { id: string; title: string }, isRoot: boolean) {
-    if (
-      !confirm(
-        `Delete "${target.title}"${isRoot ? '' : ' and its subtasks'}? This cannot be undone.`,
-      )
-    )
-      return
+  async function handleDelete(
+    target: { id: string; title: string },
+    isRoot: boolean,
+  ) {
+    const ok = await confirm({
+      title: isRoot ? 'Delete this task?' : 'Delete this subtask?',
+      message: `"${target.title}"${
+        isRoot ? ' and every subtask under it' : ' and its subtasks'
+      } will be permanently deleted.`,
+      confirmLabel: 'Delete',
+      danger: true,
+    })
+    if (!ok) return
+
     deleteTask.mutate(target.id, {
-      onSuccess: () => {
+      onSuccess: (res) => {
+        toast.success(
+          res.deletedCount > 1
+            ? `Deleted ${res.deletedCount} tasks`
+            : 'Task deleted',
+        )
         if (isRoot) navigate('/')
       },
+      onError: (e) => toast.error(errMsg(e)),
     })
   }
 
@@ -77,10 +103,17 @@ export function TaskDetailPage() {
               <PriorityBadge priority={t.priority} />
             </div>
             <div className="row" style={{ gap: '0.3rem' }}>
-              <button onClick={() => setEditing(true)}>Edit</button>
+              <button
+                onClick={() => {
+                  updateTask.reset()
+                  setEditing(true)
+                }}
+              >
+                Edit
+              </button>
               <button
                 className="danger"
-                onClick={() => handleDelete(t, true)}
+                onClick={() => void handleDelete(t, true)}
                 disabled={deleteTask.isPending}
               >
                 Delete task
@@ -117,7 +150,6 @@ export function TaskDetailPage() {
               </button>
             ))}
           </div>
-          {updateTask.isError && <p className="error">{errMsg(updateTask.error)}</p>}
         </div>
       </div>
 
@@ -126,16 +158,25 @@ export function TaskDetailPage() {
       <section className="stack">
         <div className="row spread">
           <h3 style={{ margin: 0 }}>Subtasks</h3>
-          <button onClick={() => setSubtaskParent(id)}>+ Add subtask</button>
+          <button
+            onClick={() => {
+              addSubtask.reset()
+              setSubtaskParent(id)
+            }}
+          >
+            + Add subtask
+          </button>
         </div>
         <div className="card" style={{ padding: '0.85rem' }}>
           <SubtaskTree
             nodes={t.subtasks}
-            onAddSubtask={(parentId) => setSubtaskParent(parentId)}
-            onDelete={(node) => handleDelete(node, false)}
+            onAddSubtask={(parentId) => {
+              addSubtask.reset()
+              setSubtaskParent(parentId)
+            }}
+            onDelete={(node) => void handleDelete(node, false)}
           />
         </div>
-        {deleteTask.isError && <p className="error">{errMsg(deleteTask.error)}</p>}
       </section>
 
       <Modal open={editing} onClose={() => setEditing(false)} title="Edit task">
@@ -144,12 +185,17 @@ export function TaskDetailPage() {
           initial={t}
           hasSubtasks={t.subtasks.length > 0}
           submitting={updateTask.isPending}
-          error={errMsg(updateTask.error)}
+          error={errMsgOrNull(updateTask.error)}
           onCancel={() => setEditing(false)}
           onSubmit={(input) =>
             updateTask.mutate(
               { id, input },
-              { onSuccess: () => setEditing(false) },
+              {
+                onSuccess: () => {
+                  setEditing(false)
+                  toast.success('Task updated')
+                },
+              },
             )
           }
         />
@@ -163,10 +209,15 @@ export function TaskDetailPage() {
         <TaskForm
           mode="create"
           submitting={addSubtask.isPending}
-          error={errMsg(addSubtask.error)}
+          error={errMsgOrNull(addSubtask.error)}
           onCancel={() => setSubtaskParent(null)}
           onSubmit={(input) =>
-            addSubtask.mutate(input, { onSuccess: () => setSubtaskParent(null) })
+            addSubtask.mutate(input, {
+              onSuccess: () => {
+                setSubtaskParent(null)
+                toast.success('Subtask added')
+              },
+            })
           }
         />
       </Modal>
