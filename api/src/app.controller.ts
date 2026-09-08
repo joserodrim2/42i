@@ -1,9 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 /** Landing route at the API root (`GET /api`) — lists the available endpoints. */
 @Controller()
 export class AppController {
   @Get()
+  @ApiExcludeEndpoint()
   info() {
     return {
       name: 'Task Handler API',

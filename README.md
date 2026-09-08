@@ -1,5 +1,7 @@
 # Task Handler
 
+[![CI](https://github.com/joserodrim2/42i/actions/workflows/ci.yml/badge.svg)](https://github.com/joserodrim2/42i/actions/workflows/ci.yml)
+
 A small web app for a development team to track, prioritise and estimate its work.
 Tasks form a tree of subtasks of arbitrary depth; effort estimates roll up through
 the whole hierarchy so the team can see its workload at a glance.
@@ -24,6 +26,7 @@ Then open:
 | ---- | --- |
 | Web app | http://localhost:8080 |
 | API | http://localhost:3000/api |
+| API docs (Swagger UI) | http://localhost:3000/api/docs |
 | API health check | http://localhost:3000/api/health |
 
 On start the API container applies database migrations and seeds a sample task
@@ -39,6 +42,11 @@ docker compose down -v
 ---
 
 ## Running the tests
+
+Everything below also runs in CI on every push
+([`.github/workflows/ci.yml`](.github/workflows/ci.yml)): API lint + unit + e2e,
+web lint + build, and a job that boots the full `docker compose` stack and hits
+the health endpoint.
 
 **Unit tests** (business logic — status lifecycle, effort rollup, tree rules).
 No database needed:
@@ -173,6 +181,9 @@ reports back with a toast — no native `alert` / `confirm`.
 
 ## API reference
 
+Interactive docs (Swagger UI) with a "Try it out" console are served at
+**http://localhost:3000/api/docs**; the OpenAPI spec is at `/api/docs-json`.
+
 Base path: `/api`. All bodies are JSON.
 
 | Method | Path | Description |
@@ -217,23 +228,26 @@ curl -s localhost:3000/api/tasks/stats
 
 ```
 .
-├── docker-compose.yml       db + api + web
+├── docker-compose.yml       db + api + web (each with a health check)
+├── .github/workflows/ci.yml
 ├── api/
 │   ├── prisma/              schema, SQL migration, seed
 │   └── src/
 │       ├── tasks/
 │       │   ├── domain/      pure business logic + unit tests
 │       │   ├── dto/         request validation (class-validator)
-│       │   ├── tasks.service.ts
+│       │   ├── tasks.service.ts / tasks.service.spec.ts
 │       │   └── tasks.controller.ts
-│       └── prisma/          PrismaService module
+│       ├── common/          Prisma exception filter
+│       ├── prisma/          PrismaService module
+│       └── main.ts          helmet, validation, Swagger, shutdown hooks
 │   └── test/                e2e tests
 └── web/
     └── src/
         ├── pages/           TaskListPage, TaskDetailPage
-        ├── components/      Badges, StatsBar, TaskForm, SubtaskTree, Modal
-        ├── hooks/           TanStack Query hooks
-        └── lib/             API client, shared types
+        ├── components/      Badges, StatsBar, TaskForm, SubtaskTree, Modal, Toast, Confirm
+        ├── hooks/           TanStack Query hooks, toast/confirm contexts
+        └── lib/             API client, shared types, effort helpers
 ```
 
 ## Nice-to-haves included
