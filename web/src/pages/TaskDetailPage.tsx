@@ -121,7 +121,7 @@ export function TaskDetailPage() {
         </div>
       </div>
 
-      <StatsBar stats={t.rollup} title="This task + all its subtasks (story points)" />
+      <StatsBar stats={t.rollup} title="This task + all its subtasks (effort points)" />
 
       <section className="stack">
         <div className="row spread">

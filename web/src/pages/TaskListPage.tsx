@@ -65,7 +65,7 @@ export function TaskListPage() {
       {stats.data && (
         <StatsBar
           stats={stats.data}
-          title="Whole team — story points across every task and subtask"
+          title="Whole team — effort points across every task and subtask"
         />
       )}
 

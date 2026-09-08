@@ -1,13 +1,19 @@
 import { useState, type FormEvent } from 'react'
 import {
   ALLOWED_TRANSITIONS,
-  EFFORT_SCALE,
+  EFFORT_MAX,
+  EFFORT_MIN,
   TASK_PRIORITIES,
   TASK_STATUSES,
   type Task,
   type TaskInput,
   type TaskStatus,
 } from '../lib/types'
+
+const EFFORT_POINTS = Array.from(
+  { length: EFFORT_MAX - EFFORT_MIN + 1 },
+  (_, i) => EFFORT_MIN + i,
+)
 
 interface Props {
   mode: 'create' | 'edit'
@@ -119,13 +125,14 @@ export function TaskForm({
 
       <div className="row">
         <div style={{ flex: 1 }}>
-          <label htmlFor="effort">Estimate — story points (optional)</label>
+          <label htmlFor="effort">Estimate — effort points, 1–10 (optional)</label>
           <input
             id="effort"
             type="number"
-            min={0}
+            min={EFFORT_MIN}
+            max={EFFORT_MAX}
             step="1"
-            placeholder="e.g. 3"
+            placeholder="1 = trivial · 10 = very large"
             value={hasSubtasks ? '' : effort}
             disabled={hasSubtasks}
             onChange={(e) => setEffort(e.target.value)}
@@ -135,8 +142,8 @@ export function TaskForm({
               Derived from subtasks — estimate the subtasks instead.
             </p>
           ) : (
-            <div className="row" style={{ gap: '0.3rem', marginTop: '0.35rem' }}>
-              {EFFORT_SCALE.map((n) => (
+            <div className="row" style={{ gap: '0.25rem', marginTop: '0.35rem' }}>
+              {EFFORT_POINTS.map((n) => (
                 <button
                   type="button"
                   key={n}

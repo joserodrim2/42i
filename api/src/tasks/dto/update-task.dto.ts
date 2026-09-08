@@ -1,14 +1,16 @@
 import { TaskPriority, TaskStatus } from '@prisma/client';
 import {
   IsEnum,
-  IsNumber,
+  IsInt,
   IsOptional,
   IsString,
   IsUUID,
+  Max,
   MaxLength,
   Min,
   ValidateIf,
 } from 'class-validator';
+import { EFFORT_MAX } from '../domain/effort';
 
 /**
  * All fields optional. `effort` and `parentId` accept an explicit `null`
@@ -36,8 +38,9 @@ export class UpdateTaskDto {
 
   @IsOptional()
   @ValidateIf((_, value) => value !== null)
-  @IsNumber({ allowNaN: false, allowInfinity: false })
+  @IsInt()
   @Min(0)
+  @Max(EFFORT_MAX)
   effort?: number | null;
 
   @IsOptional()

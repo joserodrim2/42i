@@ -53,7 +53,7 @@ describe('computeEffortStats', () => {
       leaf('c', 'IN_PROGRESS', 8),
       leaf('d', 'IN_REVIEW', 2),
       leaf('e', 'BLOCKED', 1),
-      leaf('f', 'DONE', 13),
+      leaf('f', 'DONE', 9),
     ];
 
     const stats = computeEffortStats(nodes);
@@ -61,9 +61,9 @@ describe('computeEffortStats', () => {
     expect(stats.notStarted).toBe(8); // 5 + 3
     expect(stats.inProgress).toBe(10); // 8 + 2
     expect(stats.blocked).toBe(1);
-    expect(stats.completed).toBe(13);
+    expect(stats.completed).toBe(9);
     expect(stats.remaining).toBe(19); // 8 + 10 + 1
-    expect(stats.totalEstimated).toBe(32);
+    expect(stats.totalEstimated).toBe(28);
     expect(stats.leafCount).toBe(6);
   });
 

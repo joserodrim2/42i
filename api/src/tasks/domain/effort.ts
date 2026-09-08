@@ -10,8 +10,9 @@ import { TaskStatus } from './task-status';
  * task in the system for the global figures); leaf-ness is derived from that
  * list. Pure, so the rules below are covered directly by unit tests.
  *
- * Estimates are **story points** on a Fibonacci scale (1, 2, 3, 5, 8, 13);
- * the type is just a non-negative number so the scale is not enforced.
+ * Estimates are effort points on a simple 1-10 scale (1 = trivial,
+ * 10 = very large); the stored type is just a non-negative number, so the
+ * scale is a UI convention and not enforced here.
  *
  * Status -> bucket mapping (leaf tasks only):
  *   notStarted : BACKLOG, TODO            (work the team has not begun)
@@ -54,8 +55,9 @@ const IN_PROGRESS: ReadonlySet<TaskStatus> = new Set<TaskStatus>([
   'IN_REVIEW',
 ]);
 
-/** Fibonacci story-point scale suggested in the UI. */
-export const EFFORT_SCALE = [1, 2, 3, 5, 8, 13] as const;
+/** Effort-point scale presented in the UI (1 = trivial, 10 = very large). */
+export const EFFORT_MIN = 1;
+export const EFFORT_MAX = 10;
 
 /** Normalises a raw estimate to a finite, non-negative number (or null). */
 export function normalizeEffort(value: unknown): number | null {

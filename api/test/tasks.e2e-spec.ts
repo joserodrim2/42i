@@ -83,8 +83,13 @@ describe('Tasks API (e2e)', () => {
       .expect(400);
   });
 
-  it('rejects a negative effort with 400', async () => {
+  it('rejects an out-of-range effort with 400', async () => {
     await api().post('/api/tasks').send({ title: 'x', effort: -2 }).expect(400);
+    await api().post('/api/tasks').send({ title: 'y', effort: 11 }).expect(400);
+    await api()
+      .post('/api/tasks')
+      .send({ title: 'z', effort: 2.5 })
+      .expect(400);
   });
 
   it('rolls up effort over a multi-level hierarchy, counting only leaves', async () => {

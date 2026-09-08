@@ -1,13 +1,15 @@
 import { TaskPriority, TaskStatus } from '@prisma/client';
 import {
   IsEnum,
-  IsNumber,
+  IsInt,
   IsOptional,
   IsString,
   IsUUID,
+  Max,
   MaxLength,
   Min,
 } from 'class-validator';
+import { EFFORT_MAX } from '../domain/effort';
 
 export class CreateTaskDto {
   @IsString()
@@ -27,10 +29,11 @@ export class CreateTaskDto {
   @IsEnum(TaskPriority)
   priority?: TaskPriority;
 
-  /** Optional effort estimate; must be a non-negative number when provided. */
+  /** Optional effort estimate on the 0–10 point scale (UI presents 1–10). */
   @IsOptional()
-  @IsNumber({ allowNaN: false, allowInfinity: false })
+  @IsInt()
   @Min(0)
+  @Max(EFFORT_MAX)
   effort?: number | null;
 
   @IsOptional()

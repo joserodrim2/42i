@@ -128,10 +128,10 @@ offers only the valid next states.
 
 ### Estimations
 
-Effort is measured in **story points** on a Fibonacci scale (1, 2, 3, 5, 8, 13),
-the same unit for every task. The stored value is just an optional non-negative
-number, so the scale is a convention (the form offers quick-picks), not a
-hard constraint.
+Effort is measured in **points on a simple 1–10 scale** (1 = trivial,
+10 = very large), the same unit for every task. The API accepts an optional
+integer from 0 to 10 (`0` = no effort, omit / `null` = not estimated yet);
+the form offers 1–10 quick-picks.
 
 **Only leaf tasks are estimated.** A task that has subtasks is estimated
 implicitly by the sum of its subtree, so:
