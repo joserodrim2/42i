@@ -78,6 +78,11 @@
   .btn-ghost {
     @apply border-transparent bg-transparent hover:bg-page;
   }
+  /* Muted until hovered — for inline / low-emphasis destructive actions. */
+  .btn-danger-subtle {
+    @apply border-transparent bg-transparent text-muted hover:bg-blocked/50
+      hover:text-blocked-fg;
+  }
 
   .card {
     @apply rounded-lg border border-line bg-white shadow-sm;

@@ -46,7 +46,7 @@ export function SubtaskTree({ nodes, onAddSubtask, onDelete }: Props) {
                 + Subtask
               </button>
               <button
-                className="btn btn-ghost btn-danger btn-sm"
+                className="btn btn-danger-subtle btn-sm"
                 onClick={() => onDelete(node)}
               >
                 Delete
