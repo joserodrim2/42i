@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PriorityBadge, StatusBadge } from '../components/Badges'
 import { Modal } from '../components/Modal'
-import { StatsBar } from '../components/StatsBar'
+import { EffortSummary } from '../components/EffortSummary'
 import { SubtaskTree } from '../components/SubtaskTree'
 import { TaskForm } from '../components/TaskForm'
 import { useConfirm } from '../hooks/confirm'
@@ -162,7 +162,11 @@ export function TaskDetailPage() {
         </div>
       </div>
 
-      <StatsBar stats={t.rollup} title="This task + all its subtasks (effort points)" />
+      <EffortSummary
+        stats={t.rollup}
+        title="Effort roll-up"
+        subtitle="This task and all its subtasks"
+      />
 
       <section className="flex flex-col gap-3.5">
         <div className="flex flex-wrap items-center justify-between gap-2">

@@ -252,7 +252,8 @@ curl -s localhost:3000/api/tasks/stats
     └── src/
         ├── index.css        Tailwind + shared component classes
         ├── pages/           TaskListPage, TaskDetailPage
-        ├── components/      Badges, StatsBar, TaskForm, SubtaskTree, Modal, Toast, Confirm
+        ├── components/      Navbar, EffortSummary, TaskCard, TaskFilters, Pagination,
+        │                    TaskForm, SubtaskTree, Badges, Modal, Toast, Confirm
         ├── hooks/           TanStack Query hooks, toast/confirm contexts
         └── lib/             API client, shared types, effort helpers
 ```
