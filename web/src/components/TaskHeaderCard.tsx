@@ -1,4 +1,5 @@
-import { PRIORITY_ACCENT } from '../lib/taskStyles'
+import { effortText } from '../lib/effort'
+import { PRIORITY_ACCENT, STATUS_STYLE } from '../lib/taskStyles'
 import { ALLOWED_TRANSITIONS, type TaskDetail, type TaskStatus } from '../lib/types'
 import { PriorityBadge, StatusBadge } from './Badges'
 
@@ -12,11 +13,12 @@ interface Props {
 
 export function TaskHeaderCard({ task, busy, onEdit, onDelete, onChangeStatus }: Props) {
   const hasSubtasks = task.subtasks.length > 0
-  const estimate = hasSubtasks
-    ? `${task.rollup.totalEstimated} pts (rolled up)`
-    : task.effort === null
-      ? '—'
-      : `${task.effort} pts`
+  const estimate =
+    effortText({
+      effort: task.effort,
+      subtaskCount: task.subtasks.length,
+      rollup: task.rollup,
+    }) + (hasSubtasks ? ' (rolled up)' : '')
 
   return (
     <div className={`card border-x-4 p-4 ${PRIORITY_ACCENT[task.priority]}`}>
@@ -56,7 +58,7 @@ export function TaskHeaderCard({ task, busy, onEdit, onDelete, onChangeStatus }:
             disabled={busy}
             onClick={() => onChangeStatus(next)}
           >
-            {next}
+            {STATUS_STYLE[next].label}
           </button>
         ))}
       </div>

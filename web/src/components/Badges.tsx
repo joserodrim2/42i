@@ -1,4 +1,4 @@
-import { PRIORITY_STYLE, STATUS_STYLE } from '../lib/taskStyles'
+import { PRIORITY_LABEL, PRIORITY_STYLE, STATUS_STYLE } from '../lib/taskStyles'
 import type { TaskPriority, TaskStatus } from '../lib/types'
 
 export function StatusBadge({ status }: { status: TaskStatus }) {
@@ -7,5 +7,9 @@ export function StatusBadge({ status }: { status: TaskStatus }) {
 }
 
 export function PriorityBadge({ priority }: { priority: TaskPriority }) {
-  return <span className={`badge ${PRIORITY_STYLE[priority]}`}>{priority}</span>
+  return (
+    <span className={`badge ${PRIORITY_STYLE[priority]}`}>
+      {PRIORITY_LABEL[priority]}
+    </span>
+  )
 }

@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { PRIORITY_LABEL, STATUS_STYLE } from '../lib/taskStyles'
 import {
   ALLOWED_TRANSITIONS,
   EFFORT_MAX,
@@ -160,7 +161,7 @@ export function TaskForm({
           >
             {statusOptions.map((s) => (
               <option key={s} value={s}>
-                {s}
+                {STATUS_STYLE[s].label}
               </option>
             ))}
           </select>
@@ -177,7 +178,7 @@ export function TaskForm({
           >
             {TASK_PRIORITIES.map((p) => (
               <option key={p} value={p}>
-                {p}
+                {PRIORITY_LABEL[p]}
               </option>
             ))}
           </select>

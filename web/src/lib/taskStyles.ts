@@ -10,6 +10,14 @@ export const STATUS_STYLE: Record<TaskStatus, { label: string; cls: string }> = 
   BLOCKED: { label: 'Blocked', cls: 'bg-blocked text-blocked-fg' },
 }
 
+/** Human label per priority — use everywhere instead of the raw enum. */
+export const PRIORITY_LABEL: Record<TaskPriority, string> = {
+  LOW: 'Low',
+  MEDIUM: 'Medium',
+  HIGH: 'High',
+  URGENT: 'Urgent',
+}
+
 export const PRIORITY_STYLE: Record<TaskPriority, string> = {
   LOW: 'bg-prio-low text-prio-low-fg',
   MEDIUM: 'bg-prio-medium text-prio-medium-fg',

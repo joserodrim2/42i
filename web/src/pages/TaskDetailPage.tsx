@@ -13,6 +13,7 @@ import {
   useTask,
   useUpdateTask,
 } from '../hooks/useTasks'
+import { STATUS_STYLE } from '../lib/taskStyles'
 import type { TaskStatus } from '../lib/types'
 
 const errMsg = (e: unknown) =>
@@ -52,7 +53,7 @@ export function TaskDetailPage() {
     updateTask.mutate(
       { id, input: { status: next } },
       {
-        onSuccess: () => toast.success(`Moved to ${next}`),
+        onSuccess: () => toast.success(`Moved to ${STATUS_STYLE[next].label}`),
         onError: (e) => toast.error(errMsg(e)),
       },
     )

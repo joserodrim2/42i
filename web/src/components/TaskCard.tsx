@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { effortLabel } from '../lib/effort'
+import { effortText } from '../lib/effort'
 import { PRIORITY_ACCENT } from '../lib/taskStyles'
 import type { TaskListItem } from '../lib/types'
 import { PriorityBadge, StatusBadge } from './Badges'
@@ -12,11 +12,7 @@ interface Props {
 
 export function TaskCard({ task, onDelete }: Props) {
   const hasSubtasks = task.subtaskCount > 0
-  const points = effortLabel(task)
-  const pointsText =
-    points === '—'
-      ? 'No estimate'
-      : `${points} ${!hasSubtasks && points === '1' ? 'pt' : 'pts'}`
+  const pointsText = effortText(task)
 
   return (
     <Link
