@@ -45,4 +45,36 @@ describe('TaskCard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Delete Throwaway' }))
     expect(onDelete).toHaveBeenCalledWith(task)
   })
+
+  it('shows a countdown pill for a task with a due date', () => {
+    renderCard(
+      makeListItem({
+        status: 'TODO',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        dueDate: '2000-01-01T00:00:00.000Z', // long past → overdue
+      }),
+    )
+    expect(screen.getByText(/overdue/)).toBeInTheDocument()
+  })
+
+  it('does not flag a DONE task even if its due date passed', () => {
+    renderCard(
+      makeListItem({
+        status: 'DONE',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        dueDate: '2000-01-01T00:00:00.000Z',
+      }),
+    )
+    expect(screen.queryByText(/overdue/)).toBeNull()
+  })
+
+  it('shows a completion percentage from the rollup points', () => {
+    renderCard(
+      makeListItem({
+        subtaskCount: 2,
+        rollup: makeStats({ totalEstimated: 10, completed: 7, remaining: 3 }),
+      }),
+    )
+    expect(screen.getByText('70%')).toBeInTheDocument()
+  })
 })

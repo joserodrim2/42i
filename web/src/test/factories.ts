@@ -28,6 +28,7 @@ export function makeNode(overrides: Partial<TaskNode> = {}): TaskNode {
     priority: 'MEDIUM',
     effort: null,
     assignee: null,
+    dueDate: null,
     parentId: null,
     createdAt: '2026-09-01T00:00:00.000Z',
     updatedAt: '2026-09-01T00:00:00.000Z',
