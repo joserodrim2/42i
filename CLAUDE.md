@@ -28,7 +28,9 @@ arbitrary depth; effort estimates roll up through the hierarchy. Monorepo:
   estimating a parent; clears a leaf's estimate when it gains a subtask).
   Bucket semantics (not started / in progress / blocked / completed) live in
   `effort.ts` + `README.md`. Changing any of this means updating both plus the
-  tests. `web/src/lib/effort.ts` mirrors the rollup for display.
+  tests. `web/src/lib/effort.ts` mirrors the rollup for display (`effortText`
+  is the shared "N pts" / "No estimate" wording for both the card and the
+  detail header — keep them using it, don't re-format inline).
 
 ## Commands
 
@@ -45,6 +47,7 @@ npx prisma migrate dev --name <name>   # after editing schema.prisma
 
 # Web (from web/)
 npm run dev                  # :5173, proxies /api to :3000
+npm test                     # Vitest (jsdom) — effort helpers + component render
 npm run build                # tsc -b && vite build
 ```
 
@@ -61,9 +64,13 @@ npm run build                # tsc -b && vite build
   exclusively — no raw `slate-*` / `red-*` / `bg-white` anywhere in `src/`.
   Status/priority → colour mapping is centralised in `lib/taskStyles.ts`
   (`STATUS_STYLE`, `PRIORITY_STYLE`, `PRIORITY_ACCENT` — the left-border tint
-  cards get from their priority).
+  cards get from their priority — and `PRIORITY_LABEL`). Never render a raw
+  enum (`IN_PROGRESS`, `URGENT`): use `STATUS_STYLE[s].label` / `PRIORITY_LABEL`.
   `IN_REVIEW` uses a violet not in the supplied palette (no entry for review).
 - Prettier + ESLint (api), oxlint (web). Run lint before committing.
+- Web tests use Vitest + Testing Library with a standalone `vitest.config.ts`
+  (jsdom, no Tailwind plugin). `.test.tsx` files are excluded from
+  `tsconfig.app.json` so `npm run build` stays fast; Vitest transpiles them.
 - Commit style: Conventional Commits, scoped `api` / `web` / build. Small,
   focused commits.
 - Prisma model changes require a migration committed alongside them.

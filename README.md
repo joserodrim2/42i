@@ -7,7 +7,8 @@ Tasks form a tree of subtasks of arbitrary depth; effort estimates roll up throu
 the whole hierarchy so the team can see its workload at a glance.
 
 - **API** — NestJS + Prisma + PostgreSQL, REST, unit + e2e tests
-- **Web** — React + Vite + Tailwind CSS (list view, detail view, subtask tree)
+- **Web** — React + Vite + Tailwind CSS (list view, detail view, subtask tree),
+  component + logic tests with Vitest
 - **Runs** with a single `docker compose up`
 
 ---
@@ -45,10 +46,10 @@ docker compose down -v
 
 Everything below also runs in CI on every push
 ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)): API lint + unit + e2e,
-web lint + build, and a job that boots the full `docker compose` stack and hits
-the health endpoint.
+web lint + unit + build, and a job that boots the full `docker compose` stack and
+hits the health endpoint.
 
-**Unit tests** — 51 total: the pure domain (status lifecycle, effort rollup,
+**API unit tests** — 51 total: the pure domain (status lifecycle, effort rollup,
 tree/cycle rules) plus the service layer with a mocked database. No database
 needed:
 
@@ -56,11 +57,19 @@ needed:
 docker compose run --rm --no-deps api npm test
 ```
 
-**End-to-end tests** (full HTTP API against a real PostgreSQL):
+**API end-to-end tests** — 16, full HTTP API against a real PostgreSQL:
 
 ```bash
 docker compose up -d db api
 docker compose run --rm api npm run test:e2e
+```
+
+**Web tests** — 15, the effort helpers plus the list card, filters and effort
+summary rendered with Testing Library (jsdom, no browser). The web container is a
+static nginx build, so run these on the host:
+
+```bash
+cd web && npm install && npm test
 ```
 
 <details>
@@ -73,7 +82,11 @@ docker compose up -d db
 cp .env.example .env
 npx prisma migrate deploy
 npm test          # unit tests (51 — domain + service)
-npm run test:e2e  # end-to-end tests (15)
+npm run test:e2e  # end-to-end tests (16)
+
+cd ../web
+npm install
+npm test          # web tests (15 — effort helpers + components)
 ```
 
 </details>
@@ -169,7 +182,8 @@ response returns them for that task's subtree.
 
 - **List view** (`/`) — an effort summary (stacked bar + breakdown over the
   whole hierarchy), then tasks as a card grid coloured by priority; search,
-  status/priority filters, a sort control, a `flat` scope and pagination.
+  status / priority / assignee filters, a sort control, a `flat` scope and
+  pagination. Skeleton placeholders cover the first load.
 - **Detail view** (`/tasks/:id`) — the task header card (badges, inline edit,
   guided status changes), the subtree effort roll-up, an ancestor breadcrumb,
   and a recursive subtask tree with add / open / delete on every node.
@@ -190,6 +204,7 @@ Base path: `/api`. All bodies are JSON.
 | ------ | ---- | ----------- |
 | `GET` | `/tasks` | List tasks. Query: `scope` (`roots`\|`all`), `status`, `priority` (repeat or comma-separate), `search`, `assignee`, `sortBy` (`createdAt`\|`updatedAt`\|`title`\|`priority`\|`status`\|`effort`), `sortDir` (`asc`\|`desc`), `page`, `pageSize`. Returns `{ data, page, pageSize, total, totalPages }`; each item carries `subtasks`, `subtaskCount` and `rollup`. |
 | `GET` | `/tasks/stats` | Global effort figures + task counts by status. |
+| `GET` | `/tasks/assignees` | Distinct assignee names currently in use (for the filter). |
 | `GET` | `/tasks/:id` | One task with its full nested `subtasks`, `rollup`, `parent` and `ancestors`. |
 | `POST` | `/tasks` | Create a task. Body: `title` (required), `description`, `status`, `priority`, `effort`, `assignee`, `parentId`. |
 | `POST` | `/tasks/:id/subtasks` | Create a task nested under `:id`. |
@@ -252,15 +267,19 @@ curl -s localhost:3000/api/tasks/stats
         ├── index.css        Tailwind + @theme palette + shared component classes
         ├── pages/           TaskListPage, TaskDetailPage
         ├── components/      Navbar, EffortSummary, TaskCard, TaskHeaderCard, TaskFilters,
-        │                    Pagination, TaskForm, SubtaskTree, Badges, Modal, Toast, Confirm
+        │                    Pagination, TaskForm, SubtaskTree, Badges, Modal, Skeletons,
+        │                    Toast, Confirm  (+ *.test.tsx alongside)
         ├── hooks/           TanStack Query hooks, toast/confirm contexts
-        └── lib/             API client, shared types, effort + filter + style helpers
+        ├── lib/             API client, shared types, effort + filter + style helpers
+        └── test/            Vitest setup + test data factories
 ```
 
 ## Nice-to-haves included
 
 - Responsive layout (cards/grid reflow, tables scroll on narrow screens)
-- Pagination, multi-field sorting and filtering on the list endpoint and UI
+- Pagination, multi-field sorting and filtering (status, priority, assignee,
+  full-text) on the list endpoint and UI
+- Loading skeletons on first paint
 
 ## AI usage
 
