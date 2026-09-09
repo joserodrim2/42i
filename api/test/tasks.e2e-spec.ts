@@ -72,6 +72,27 @@ describe('Tasks API (e2e)', () => {
     await api().get(`/api/tasks/${id}`).expect(404);
   });
 
+  it('stores, returns and clears a due date', async () => {
+    const created = await api()
+      .post('/api/tasks')
+      .send({ title: 'Ship it', dueDate: '2026-10-15' })
+      .expect(201);
+    expect(created.body.dueDate).toBe('2026-10-15T00:00:00.000Z');
+
+    const cleared = await api()
+      .patch(`/api/tasks/${created.body.id}`)
+      .send({ dueDate: null })
+      .expect(200);
+    expect(cleared.body.dueDate).toBeNull();
+  });
+
+  it('rejects a malformed due date with 400', async () => {
+    await api()
+      .post('/api/tasks')
+      .send({ title: 'x', dueDate: 'not-a-date' })
+      .expect(400);
+  });
+
   it('rejects an invalid status transition with 400', async () => {
     const { body } = await api()
       .post('/api/tasks')

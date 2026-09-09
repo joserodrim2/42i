@@ -14,6 +14,8 @@ interface SeedTask {
   createdDaysAgo?: number;
   /** Days before "now" the task was last touched (defaults to createdDaysAgo). */
   updatedDaysAgo?: number;
+  /** Days from "now" the task is due (negative = already overdue). Omit for no due date. */
+  dueInDays?: number;
   subtasks?: SeedTask[];
 }
 
@@ -26,6 +28,7 @@ const TASKS: SeedTask[] = [
     assignee: 'Jose',
     createdDaysAgo: 30,
     updatedDaysAgo: 1,
+    dueInDays: 10, // 30/40 elapsed → last third (red)
     subtasks: [
       {
         title: 'Design the data model',
@@ -36,6 +39,7 @@ const TASKS: SeedTask[] = [
         assignee: 'Jose',
         createdDaysAgo: 30,
         updatedDaysAgo: 24,
+        dueInDays: -6, // past its date but DONE → stays neutral
       },
       {
         title: 'Build the CRUD API',
@@ -44,6 +48,7 @@ const TASKS: SeedTask[] = [
         assignee: 'Jose',
         createdDaysAgo: 26,
         updatedDaysAgo: 2,
+        dueInDays: 40, // 26/66 elapsed → middle third (orange)
         subtasks: [
           {
             title: 'Task endpoints',
@@ -77,6 +82,7 @@ const TASKS: SeedTask[] = [
         priority: TaskPriority.MEDIUM,
         createdDaysAgo: 14,
         updatedDaysAgo: 5,
+        dueInDays: 42, // 14/56 elapsed → first third (green)
         subtasks: [
           {
             title: 'Task list view',
@@ -85,6 +91,7 @@ const TASKS: SeedTask[] = [
             effort: 3,
             createdDaysAgo: 10,
             updatedDaysAgo: 4,
+            dueInDays: 30,
           },
           {
             title: 'Task detail view with subtask tree',
@@ -104,6 +111,7 @@ const TASKS: SeedTask[] = [
         assignee: 'Jose',
         createdDaysAgo: 9,
         updatedDaysAgo: 2,
+        dueInDays: -3, // overdue (purple)
       },
     ],
   },
@@ -125,6 +133,7 @@ const TASKS: SeedTask[] = [
     assignee: 'Sam',
     createdDaysAgo: 3,
     updatedDaysAgo: 0,
+    dueInDays: 1, // 3/4 elapsed → last third (red)
   },
 ];
 
@@ -148,6 +157,8 @@ async function createTree(
       priority: node.priority ?? TaskPriority.MEDIUM,
       effort: isLeaf ? (node.effort ?? null) : null,
       assignee: node.assignee ?? null,
+      dueDate:
+        node.dueInDays === undefined ? null : daysAgo(-node.dueInDays),
       parentId,
       createdAt: daysAgo(createdDaysAgo),
     },

@@ -24,6 +24,9 @@ export class TaskDto {
   @ApiProperty({ type: String, nullable: true })
   assignee!: string | null;
 
+  @ApiProperty({ format: 'date-time', nullable: true })
+  dueDate!: string | null;
+
   @ApiProperty({ type: String, format: 'uuid', nullable: true })
   parentId!: string | null;
 
