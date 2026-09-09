@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { effortLabel } from '../lib/effort'
+import { PRIORITY_ACCENT } from '../lib/taskStyles'
 import type { TaskListItem } from '../lib/types'
 import { PriorityBadge, StatusBadge } from './Badges'
 
@@ -14,7 +15,7 @@ export function TaskCard({ task }: { task: TaskListItem }) {
   return (
     <Link
       to={`/tasks/${task.id}`}
-      className="card group flex flex-col gap-2.5 p-4 no-underline transition-shadow hover:shadow-md"
+      className={`card group flex flex-col gap-2.5 border-l-4 p-4 no-underline transition-shadow hover:shadow-md ${PRIORITY_ACCENT[task.priority]}`}
     >
       <div className="flex flex-wrap items-center gap-1.5">
         <StatusBadge status={task.status} />

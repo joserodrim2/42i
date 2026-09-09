@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { PriorityBadge, StatusBadge } from '../components/Badges'
-import { Modal } from '../components/Modal'
 import { EffortSummary } from '../components/EffortSummary'
+import { Modal } from '../components/Modal'
 import { SubtaskTree } from '../components/SubtaskTree'
 import { TaskForm } from '../components/TaskForm'
+import { TaskHeaderCard } from '../components/TaskHeaderCard'
 import { useConfirm } from '../hooks/confirm'
 import { useToast } from '../hooks/toast'
 import {
@@ -13,7 +13,7 @@ import {
   useTask,
   useUpdateTask,
 } from '../hooks/useTasks'
-import { ALLOWED_TRANSITIONS, type TaskNode } from '../lib/types'
+import type { TaskStatus } from '../lib/types'
 
 const errMsg = (e: unknown) =>
   e instanceof Error ? e.message : 'Something went wrong'
@@ -48,7 +48,7 @@ export function TaskDetailPage() {
 
   const t = task.data
 
-  function changeStatus(next: TaskNode['status']) {
+  function changeStatus(next: TaskStatus) {
     updateTask.mutate(
       { id, input: { status: next } },
       {
@@ -104,62 +104,16 @@ export function TaskDetailPage() {
           <span>{t.title}</span>
         </div>
 
-        <div className="card p-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <StatusBadge status={t.status} />
-              <PriorityBadge priority={t.priority} />
-            </div>
-            <div className="flex gap-1">
-              <button
-                className="btn"
-                onClick={() => {
-                  updateTask.reset()
-                  setEditing(true)
-                }}
-              >
-                Edit
-              </button>
-              <button
-                className="btn btn-danger"
-                onClick={() => void handleDelete(t, true)}
-                disabled={deleteTask.isPending}
-              >
-                Delete task
-              </button>
-            </div>
-          </div>
-
-          <h2 className="mb-1 mt-3 text-xl font-semibold">{t.title}</h2>
-          <p className="mt-0 whitespace-pre-wrap text-sm">
-            {t.description || <span className="text-muted">No description.</span>}
-          </p>
-
-          <div className="mt-2 flex flex-wrap gap-4 text-xs text-muted">
-            <span>
-              {t.subtasks.length > 0
-                ? `Estimate: ${t.rollup.totalEstimated} pts (rolled up)`
-                : `Estimate: ${t.effort === null ? '—' : `${t.effort} pts`}`}
-            </span>
-            <span>Assignee: {t.assignee ?? '—'}</span>
-            <span>Created {new Date(t.createdAt).toLocaleString()}</span>
-            <span>Updated {new Date(t.updatedAt).toLocaleString()}</span>
-          </div>
-
-          <div className="mt-3.5 flex flex-wrap items-center gap-1.5">
-            <span className="text-xs text-muted">Move to:</span>
-            {ALLOWED_TRANSITIONS[t.status].map((next) => (
-              <button
-                key={next}
-                className="btn btn-sm"
-                disabled={updateTask.isPending}
-                onClick={() => changeStatus(next)}
-              >
-                {next}
-              </button>
-            ))}
-          </div>
-        </div>
+        <TaskHeaderCard
+          task={t}
+          busy={updateTask.isPending || deleteTask.isPending}
+          onEdit={() => {
+            updateTask.reset()
+            setEditing(true)
+          }}
+          onDelete={() => void handleDelete(t, true)}
+          onChangeStatus={changeStatus}
+        />
       </div>
 
       <EffortSummary

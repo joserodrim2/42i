@@ -48,7 +48,7 @@ Everything below also runs in CI on every push
 web lint + build, and a job that boots the full `docker compose` stack and hits
 the health endpoint.
 
-**Unit tests** — 49 total: the pure domain (status lifecycle, effort rollup,
+**Unit tests** — 51 total: the pure domain (status lifecycle, effort rollup,
 tree/cycle rules) plus the service layer with a mocked database. No database
 needed:
 
@@ -72,8 +72,8 @@ npm install
 docker compose up -d db
 cp .env.example .env
 npx prisma migrate deploy
-npm test          # unit tests (49 — domain + service)
-npm run test:e2e  # end-to-end tests (10)
+npm test          # unit tests (51 — domain + service)
+npm run test:e2e  # end-to-end tests (15)
 ```
 
 </details>
@@ -167,13 +167,12 @@ response returns them for that task's subtree.
 
 ### Views
 
-- **List view** (`/`) — every top-level task with status, priority, effort,
-  assignee, subtask count and its subtree's remaining/total effort; a global
-  stats bar; search, status/priority filters, sortable columns and pagination.
-  A "flat" scope lists every task regardless of nesting.
-- **Detail view** (`/tasks/:id`) — all task fields, inline editing, guided
-  status changes, the subtree effort rollup, an ancestor breadcrumb, and a
-  recursive subtask tree with add / open / delete on every node.
+- **List view** (`/`) — an effort summary (stacked bar + breakdown over the
+  whole hierarchy), then tasks as a card grid coloured by priority; search,
+  status/priority filters, a sort control, a `flat` scope and pagination.
+- **Detail view** (`/tasks/:id`) — the task header card (badges, inline edit,
+  guided status changes), the subtree effort roll-up, an ancestor breadcrumb,
+  and a recursive subtask tree with add / open / delete on every node.
 
 Destructive actions ask for confirmation in an in-app dialog and every mutation
 reports back with a toast — no native `alert` / `confirm`.
@@ -250,12 +249,12 @@ curl -s localhost:3000/api/tasks/stats
 │   └── test/                e2e tests
 └── web/
     └── src/
-        ├── index.css        Tailwind + shared component classes
+        ├── index.css        Tailwind + @theme palette + shared component classes
         ├── pages/           TaskListPage, TaskDetailPage
-        ├── components/      Navbar, EffortSummary, TaskCard, TaskFilters, Pagination,
-        │                    TaskForm, SubtaskTree, Badges, Modal, Toast, Confirm
+        ├── components/      Navbar, EffortSummary, TaskCard, TaskHeaderCard, TaskFilters,
+        │                    Pagination, TaskForm, SubtaskTree, Badges, Modal, Toast, Confirm
         ├── hooks/           TanStack Query hooks, toast/confirm contexts
-        └── lib/             API client, shared types, effort helpers
+        └── lib/             API client, shared types, effort + filter + style helpers
 ```
 
 ## Nice-to-haves included

@@ -59,7 +59,9 @@ npm run build                # tsc -b && vite build
   (`ink`, `brand-*`, `page`, `surface`, `line`, `muted`, `todo`/`progress`/
   `review`/…, `prio-low`/…, each with a `-fg` for its text). Use those
   exclusively — no raw `slate-*` / `red-*` / `bg-white` anywhere in `src/`.
-  Status/priority → colour mapping is centralised in `components/Badges.tsx`.
+  Status/priority → colour mapping is centralised in `lib/taskStyles.ts`
+  (`STATUS_STYLE`, `PRIORITY_STYLE`, `PRIORITY_ACCENT` — the left-border tint
+  cards get from their priority).
   `IN_REVIEW` uses a violet not in the supplied palette (no entry for review).
 - Prettier + ESLint (api), oxlint (web). Run lint before committing.
 - Commit style: Conventional Commits, scoped `api` / `web` / build. Small,
