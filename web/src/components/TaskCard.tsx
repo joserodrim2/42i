@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
-import { effortText } from '../lib/effort'
-import { PRIORITY_ACCENT } from '../lib/taskStyles'
+import { effortText, progressPct } from '../lib/effort'
+import { getSchedule, scheduleLabel } from '../lib/schedule'
+import { PRIORITY_ACCENT, SCHEDULE_PILL, SCHEDULE_TINT } from '../lib/taskStyles'
 import type { TaskListItem } from '../lib/types'
 import { PriorityBadge, StatusBadge } from './Badges'
 import { TrashIcon } from './icons'
@@ -13,11 +14,13 @@ interface Props {
 export function TaskCard({ task, onDelete }: Props) {
   const hasSubtasks = task.subtaskCount > 0
   const pointsText = effortText(task)
+  const pct = progressPct(task.rollup)
+  const schedule = getSchedule(task)
 
   return (
     <Link
       to={`/tasks/${task.id}`}
-      className={`card group relative flex flex-col gap-2.5 border-x-4 p-4 no-underline transition-shadow hover:shadow-md ${PRIORITY_ACCENT[task.priority]}`}
+      className={`card group relative flex flex-col gap-2.5 border-x-4 p-4 no-underline transition-shadow hover:shadow-md ${PRIORITY_ACCENT[task.priority]} ${SCHEDULE_TINT[schedule.state]}`}
     >
       <button
         type="button"
@@ -36,13 +39,33 @@ export function TaskCard({ task, onDelete }: Props) {
       <div className="flex flex-wrap items-center gap-1.5 pr-7">
         <StatusBadge status={task.status} />
         <PriorityBadge priority={task.priority} />
+        {schedule.state !== 'none' && (
+          <span className={`badge ${SCHEDULE_PILL[schedule.state]}`}>
+            {scheduleLabel(task)}
+          </span>
+        )}
       </div>
 
       <h3 className="line-clamp-2 font-medium text-ink group-hover:text-brand-600">
         {task.title}
       </h3>
 
-      <div className="mt-auto flex flex-col gap-1 pt-1 text-xs text-muted">
+      <div className="mt-auto flex flex-col gap-1.5 pt-1 text-xs text-muted">
+        {pct !== null && (
+          <div className="flex items-center gap-2">
+            <span
+              className="h-1.5 flex-1 overflow-hidden rounded-full bg-line"
+              aria-hidden="true"
+            >
+              <span
+                className="block h-full rounded-full bg-done-fg"
+                style={{ width: `${pct}%` }}
+              />
+            </span>
+            <span className="font-medium tabular-nums text-ink">{pct}%</span>
+          </div>
+        )}
+
         <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
           <span className="font-medium text-ink">{pointsText}</span>
           {hasSubtasks && (
@@ -56,9 +79,14 @@ export function TaskCard({ task, onDelete }: Props) {
             </>
           )}
         </div>
+
         <div className="flex items-center justify-between">
           <span>{task.assignee ?? 'Unassigned'}</span>
-          <span>{new Date(task.updatedAt).toLocaleDateString()}</span>
+          <span>
+            {task.dueDate
+              ? `Due ${new Date(task.dueDate).toLocaleDateString()}`
+              : `Updated ${new Date(task.updatedAt).toLocaleDateString()}`}
+          </span>
         </div>
       </div>
     </Link>

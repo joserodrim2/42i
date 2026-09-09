@@ -25,3 +25,15 @@ export function effortText(task: {
   if (task.effort === null) return 'No estimate'
   return `${task.effort} pt${task.effort === 1 ? '' : 's'}`
 }
+
+/**
+ * Progress as completed points over total estimated points, 0–100.
+ * `null` when nothing in the subtree is estimated (no meaningful percentage).
+ */
+export function progressPct(rollup: {
+  completed: number
+  totalEstimated: number
+}): number | null {
+  if (rollup.totalEstimated <= 0) return null
+  return Math.round((rollup.completed / rollup.totalEstimated) * 100)
+}
