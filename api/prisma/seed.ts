@@ -10,6 +10,10 @@ interface SeedTask {
   /** Only meaningful on leaves (tasks without subtasks); ignored otherwise. */
   effort?: number;
   assignee?: string;
+  /** Days before "now" the task was created — spread so date filters/sorting are testable. */
+  createdDaysAgo?: number;
+  /** Days before "now" the task was last touched (defaults to createdDaysAgo). */
+  updatedDaysAgo?: number;
   subtasks?: SeedTask[];
 }
 
@@ -20,6 +24,8 @@ const TASKS: SeedTask[] = [
     status: TaskStatus.IN_PROGRESS,
     priority: TaskPriority.HIGH,
     assignee: 'Jose',
+    createdDaysAgo: 30,
+    updatedDaysAgo: 1,
     subtasks: [
       {
         title: 'Design the data model',
@@ -28,30 +34,40 @@ const TASKS: SeedTask[] = [
         priority: TaskPriority.HIGH,
         effort: 3,
         assignee: 'Jose',
+        createdDaysAgo: 30,
+        updatedDaysAgo: 24,
       },
       {
         title: 'Build the CRUD API',
         status: TaskStatus.IN_PROGRESS,
         priority: TaskPriority.HIGH,
         assignee: 'Jose',
+        createdDaysAgo: 26,
+        updatedDaysAgo: 2,
         subtasks: [
           {
             title: 'Task endpoints',
             status: TaskStatus.DONE,
             priority: TaskPriority.MEDIUM,
             effort: 2,
+            createdDaysAgo: 26,
+            updatedDaysAgo: 18,
           },
           {
             title: 'Effort aggregation endpoint',
             status: TaskStatus.IN_REVIEW,
             priority: TaskPriority.MEDIUM,
             effort: 2,
+            createdDaysAgo: 20,
+            updatedDaysAgo: 3,
           },
           {
             title: 'Pagination, sorting and filtering',
             status: TaskStatus.TODO,
             priority: TaskPriority.LOW,
             effort: 3,
+            createdDaysAgo: 12,
+            updatedDaysAgo: 12,
           },
         ],
       },
@@ -59,18 +75,24 @@ const TASKS: SeedTask[] = [
         title: 'Build the web UI',
         status: TaskStatus.TODO,
         priority: TaskPriority.MEDIUM,
+        createdDaysAgo: 14,
+        updatedDaysAgo: 5,
         subtasks: [
           {
             title: 'Task list view',
             status: TaskStatus.TODO,
             priority: TaskPriority.MEDIUM,
             effort: 3,
+            createdDaysAgo: 10,
+            updatedDaysAgo: 4,
           },
           {
             title: 'Task detail view with subtask tree',
             status: TaskStatus.BACKLOG,
             priority: TaskPriority.MEDIUM,
             effort: 5,
+            createdDaysAgo: 7,
+            updatedDaysAgo: 7,
           },
         ],
       },
@@ -80,6 +102,8 @@ const TASKS: SeedTask[] = [
         priority: TaskPriority.MEDIUM,
         effort: 2,
         assignee: 'Jose',
+        createdDaysAgo: 9,
+        updatedDaysAgo: 2,
       },
     ],
   },
@@ -89,6 +113,8 @@ const TASKS: SeedTask[] = [
     status: TaskStatus.BACKLOG,
     priority: TaskPriority.LOW,
     effort: 3,
+    createdDaysAgo: 18,
+    updatedDaysAgo: 18,
   },
   {
     title: 'Fix flaky login test',
@@ -97,14 +123,23 @@ const TASKS: SeedTask[] = [
     priority: TaskPriority.URGENT,
     effort: 1,
     assignee: 'Sam',
+    createdDaysAgo: 3,
+    updatedDaysAgo: 0,
   },
 ];
+
+const daysAgo = (n: number): Date =>
+  new Date(Date.now() - n * 24 * 60 * 60 * 1000);
+
+/** [taskId, updatedAt] pairs applied after creation (Prisma manages @updatedAt). */
+const touchups: { id: string; updatedAt: Date }[] = [];
 
 async function createTree(
   node: SeedTask,
   parentId: string | null,
 ): Promise<void> {
   const isLeaf = !node.subtasks || node.subtasks.length === 0;
+  const createdDaysAgo = node.createdDaysAgo ?? 0;
   const created = await prisma.task.create({
     data: {
       title: node.title,
@@ -114,16 +149,25 @@ async function createTree(
       effort: isLeaf ? (node.effort ?? null) : null,
       assignee: node.assignee ?? null,
       parentId,
+      createdAt: daysAgo(createdDaysAgo),
     },
+  });
+  touchups.push({
+    id: created.id,
+    updatedAt: daysAgo(node.updatedDaysAgo ?? createdDaysAgo),
   });
   for (const child of node.subtasks ?? []) await createTree(child, created.id);
 }
 
 async function main(): Promise<void> {
   await prisma.task.deleteMany();
+  touchups.length = 0;
   for (const root of TASKS) await createTree(root, null);
+  for (const { id, updatedAt } of touchups) {
+    await prisma.$executeRaw`UPDATE "Task" SET "updatedAt" = ${updatedAt} WHERE id = ${id}`;
+  }
   const count = await prisma.task.count();
-  console.log(`Seeded ${count} tasks.`);
+  console.log(`Seeded ${count} tasks with spread-out dates.`);
 }
 
 main()

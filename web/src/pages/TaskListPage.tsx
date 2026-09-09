@@ -5,15 +5,20 @@ import { Pagination } from '../components/Pagination'
 import { TaskCard } from '../components/TaskCard'
 import { TaskFilters } from '../components/TaskFilters'
 import { TaskForm } from '../components/TaskForm'
+import { useConfirm } from '../hooks/confirm'
 import { useToast } from '../hooks/toast'
-import { useCreateTask, useStats, useTaskList } from '../hooks/useTasks'
 import {
-  DEFAULT_FILTERS,
-  type TaskFilterValue,
-} from '../lib/taskFilters'
-import type { TaskListQuery } from '../lib/types'
+  useCreateTask,
+  useDeleteTask,
+  useStats,
+  useTaskList,
+} from '../hooks/useTasks'
+import { DEFAULT_FILTERS, type TaskFilterValue } from '../lib/taskFilters'
+import type { TaskListItem, TaskListQuery } from '../lib/types'
 
 const PAGE_SIZE = 12
+const errMsg = (e: unknown) =>
+  e instanceof Error ? e.message : 'Something went wrong'
 
 export function TaskListPage() {
   const [filters, setFilters] = useState<TaskFilterValue>(DEFAULT_FILTERS)
@@ -40,9 +45,35 @@ export function TaskListPage() {
   }, [filters, page])
 
   const toast = useToast()
+  const confirm = useConfirm()
   const list = useTaskList(query)
   const stats = useStats()
   const createTask = useCreateTask()
+  const deleteTask = useDeleteTask()
+
+  async function handleDelete(task: TaskListItem) {
+    const ok = await confirm({
+      title: 'Delete this task?',
+      message: `"${task.title}"${
+        task.subtaskCount > 0
+          ? ` and its ${task.subtaskCount} subtask${task.subtaskCount > 1 ? 's' : ''}`
+          : ''
+      } will be permanently deleted.`,
+      confirmLabel: 'Delete',
+      danger: true,
+    })
+    if (!ok) return
+
+    deleteTask.mutate(task.id, {
+      onSuccess: (res) =>
+        toast.success(
+          res.deletedCount > 1
+            ? `Deleted ${res.deletedCount} tasks`
+            : 'Task deleted',
+        ),
+      onError: (e) => toast.error(errMsg(e)),
+    })
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -86,7 +117,7 @@ export function TaskListPage() {
             <>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {list.data.data.map((task) => (
-                  <TaskCard key={task.id} task={task} />
+                  <TaskCard key={task.id} task={task} onDelete={handleDelete} />
                 ))}
               </div>
               <Pagination

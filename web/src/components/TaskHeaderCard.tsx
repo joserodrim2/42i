@@ -19,7 +19,7 @@ export function TaskHeaderCard({ task, busy, onEdit, onDelete, onChangeStatus }:
       : `${task.effort} pts`
 
   return (
-    <div className={`card border-l-4 p-4 ${PRIORITY_ACCENT[task.priority]}`}>
+    <div className={`card border-x-4 p-4 ${PRIORITY_ACCENT[task.priority]}`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <StatusBadge status={task.status} />

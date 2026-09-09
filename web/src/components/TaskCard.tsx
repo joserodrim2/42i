@@ -3,8 +3,14 @@ import { effortLabel } from '../lib/effort'
 import { PRIORITY_ACCENT } from '../lib/taskStyles'
 import type { TaskListItem } from '../lib/types'
 import { PriorityBadge, StatusBadge } from './Badges'
+import { TrashIcon } from './icons'
 
-export function TaskCard({ task }: { task: TaskListItem }) {
+interface Props {
+  task: TaskListItem
+  onDelete: (task: TaskListItem) => void
+}
+
+export function TaskCard({ task, onDelete }: Props) {
   const hasSubtasks = task.subtaskCount > 0
   const points = effortLabel(task)
   const pointsText =
@@ -15,9 +21,23 @@ export function TaskCard({ task }: { task: TaskListItem }) {
   return (
     <Link
       to={`/tasks/${task.id}`}
-      className={`card group flex flex-col gap-2.5 border-l-4 p-4 no-underline transition-shadow hover:shadow-md ${PRIORITY_ACCENT[task.priority]}`}
+      className={`card group relative flex flex-col gap-2.5 border-x-4 p-4 no-underline transition-shadow hover:shadow-md ${PRIORITY_ACCENT[task.priority]}`}
     >
-      <div className="flex flex-wrap items-center gap-1.5">
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          onDelete(task)
+        }}
+        className="absolute right-2 top-2 rounded p-1 text-muted transition-colors hover:bg-blocked/50 hover:text-blocked-fg"
+        aria-label={`Delete ${task.title}`}
+        title="Delete task"
+      >
+        <TrashIcon />
+      </button>
+
+      <div className="flex flex-wrap items-center gap-1.5 pr-7">
         <StatusBadge status={task.status} />
         <PriorityBadge priority={task.priority} />
       </div>

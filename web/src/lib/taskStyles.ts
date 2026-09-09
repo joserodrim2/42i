@@ -17,10 +17,10 @@ export const PRIORITY_STYLE: Record<TaskPriority, string> = {
   URGENT: 'bg-prio-urgent text-prio-urgent-fg',
 }
 
-/** Left-border accent used to colour a card by its priority. */
+/** Side-border accent used to colour a card by its priority (pair with `border-x-4`). */
 export const PRIORITY_ACCENT: Record<TaskPriority, string> = {
-  LOW: 'border-l-prio-low-fg',
-  MEDIUM: 'border-l-prio-medium-fg',
-  HIGH: 'border-l-prio-high-fg',
-  URGENT: 'border-l-prio-urgent-fg',
+  LOW: 'border-x-prio-low-fg',
+  MEDIUM: 'border-x-prio-medium-fg',
+  HIGH: 'border-x-prio-high-fg',
+  URGENT: 'border-x-prio-urgent-fg',
 }
