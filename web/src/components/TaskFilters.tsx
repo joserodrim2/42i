@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { SORT_OPTIONS, type TaskFilterValue } from '../lib/taskFilters'
+import { PRIORITY_LABEL, STATUS_STYLE } from '../lib/taskStyles'
 import {
   FIELD_LIMITS,
   TASK_PRIORITIES,
@@ -11,6 +12,8 @@ import {
 interface Props {
   value: TaskFilterValue
   onChange: (patch: Partial<TaskFilterValue>) => void
+  /** Distinct assignee names to offer in the assignee filter. */
+  assignees: string[]
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -24,7 +27,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
-export function TaskFilters({ value, onChange }: Props) {
+export function TaskFilters({ value, onChange, assignees }: Props) {
   return (
     <div className="card flex flex-wrap items-end gap-3 p-3.5">
       <div className="min-w-[200px] flex-[2]">
@@ -49,7 +52,7 @@ export function TaskFilters({ value, onChange }: Props) {
             <option value="">All</option>
             {TASK_STATUSES.map((s) => (
               <option key={s} value={s}>
-                {s}
+                {STATUS_STYLE[s].label}
               </option>
             ))}
           </select>
@@ -68,7 +71,24 @@ export function TaskFilters({ value, onChange }: Props) {
             <option value="">All</option>
             {TASK_PRIORITIES.map((p) => (
               <option key={p} value={p}>
-                {p}
+                {PRIORITY_LABEL[p]}
+              </option>
+            ))}
+          </select>
+        </Field>
+      </div>
+
+      <div className="min-w-[130px] flex-1">
+        <Field label="Assignee">
+          <select
+            className="field"
+            value={value.assignee}
+            onChange={(e) => onChange({ assignee: e.target.value })}
+          >
+            <option value="">Anyone</option>
+            {assignees.map((name) => (
+              <option key={name} value={name}>
+                {name}
               </option>
             ))}
           </select>

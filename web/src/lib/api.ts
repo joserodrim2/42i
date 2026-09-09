@@ -46,6 +46,7 @@ function toQueryString(query: TaskListQuery): string {
   if (query.status?.length) params.set('status', query.status.join(','))
   if (query.priority?.length) params.set('priority', query.priority.join(','))
   if (query.search) params.set('search', query.search)
+  if (query.assignee) params.set('assignee', query.assignee)
   if (query.scope) params.set('scope', query.scope)
   if (query.sortBy) params.set('sortBy', query.sortBy)
   if (query.sortDir) params.set('sortDir', query.sortDir)
@@ -62,6 +63,8 @@ export const api = {
   getTask: (id: string) => request<TaskDetail>(`/tasks/${id}`),
 
   getStats: () => request<GlobalStats>('/tasks/stats'),
+
+  listAssignees: () => request<string[]>('/tasks/assignees'),
 
   createTask: (input: TaskInput) =>
     request<Task>('/tasks', { method: 'POST', body: JSON.stringify(input) }),

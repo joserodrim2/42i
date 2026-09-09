@@ -30,6 +30,13 @@ export function useStats() {
   return useQuery({ queryKey: keys.stats, queryFn: api.getStats })
 }
 
+export function useAssignees() {
+  return useQuery({
+    queryKey: ['tasks', 'assignees'] as const,
+    queryFn: api.listAssignees,
+  })
+}
+
 /** Invalidates every task query so lists, detail and stats stay in sync. */
 function useInvalidateTasks() {
   const qc = useQueryClient()

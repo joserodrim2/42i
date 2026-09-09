@@ -2,12 +2,17 @@ import { useMemo, useState } from 'react'
 import { EffortSummary } from '../components/EffortSummary'
 import { Modal } from '../components/Modal'
 import { Pagination } from '../components/Pagination'
+import {
+  EffortSummarySkeleton,
+  TaskGridSkeleton,
+} from '../components/Skeletons'
 import { TaskCard } from '../components/TaskCard'
 import { TaskFilters } from '../components/TaskFilters'
 import { TaskForm } from '../components/TaskForm'
 import { useConfirm } from '../hooks/confirm'
 import { useToast } from '../hooks/toast'
 import {
+  useAssignees,
   useCreateTask,
   useDeleteTask,
   useStats,
@@ -36,6 +41,7 @@ export function TaskListPage() {
       search: filters.search.trim() || undefined,
       status: filters.status ? [filters.status] : undefined,
       priority: filters.priority ? [filters.priority] : undefined,
+      assignee: filters.assignee || undefined,
       scope: filters.scope,
       sortBy,
       sortDir,
@@ -48,6 +54,7 @@ export function TaskListPage() {
   const confirm = useConfirm()
   const list = useTaskList(query)
   const stats = useStats()
+  const assignees = useAssignees()
   const createTask = useCreateTask()
   const deleteTask = useDeleteTask()
 
@@ -77,12 +84,16 @@ export function TaskListPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      {stats.data && (
-        <EffortSummary
-          stats={stats.data}
-          title="Effort summary"
-          subtitle="Story points across every task and subtask"
-        />
+      {stats.isLoading ? (
+        <EffortSummarySkeleton />
+      ) : (
+        stats.data && (
+          <EffortSummary
+            stats={stats.data}
+            title="Effort summary"
+            subtitle="Story points across every task and subtask"
+          />
+        )
       )}
 
       <section className="flex flex-col gap-3.5">
@@ -99,9 +110,13 @@ export function TaskListPage() {
           </button>
         </div>
 
-        <TaskFilters value={filters} onChange={patchFilters} />
+        <TaskFilters
+          value={filters}
+          onChange={patchFilters}
+          assignees={assignees.data ?? []}
+        />
 
-        {list.isLoading && <p className="text-muted">Loading tasks…</p>}
+        {list.isLoading && <TaskGridSkeleton />}
         {list.isError && (
           <p className="rounded-lg border border-blocked bg-blocked px-3 py-2 text-sm text-blocked-fg">
             Could not load tasks.

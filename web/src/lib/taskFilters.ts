@@ -4,6 +4,8 @@ export interface TaskFilterValue {
   search: string
   status: TaskStatus | ''
   priority: TaskPriority | ''
+  /** Exact assignee name, or '' for everyone. */
+  assignee: string
   scope: 'roots' | 'all'
   /** `field:direction`, e.g. `updatedAt:desc` */
   sort: string
@@ -13,6 +15,7 @@ export const DEFAULT_FILTERS: TaskFilterValue = {
   search: '',
   status: '',
   priority: '',
+  assignee: '',
   scope: 'roots',
   sort: 'updatedAt:desc',
 }

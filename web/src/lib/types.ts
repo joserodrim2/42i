@@ -106,6 +106,7 @@ export interface TaskListQuery {
   status?: TaskStatus[]
   priority?: TaskPriority[]
   search?: string
+  assignee?: string
   scope?: 'roots' | 'all'
   sortBy?: string
   sortDir?: 'asc' | 'desc'
