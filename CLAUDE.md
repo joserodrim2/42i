@@ -68,6 +68,9 @@ npm run build                # tsc -b && vite build
   enum (`IN_PROGRESS`, `URGENT`): use `STATUS_STYLE[s].label` / `PRIORITY_LABEL`.
   `IN_REVIEW` uses a violet not in the supplied palette (no entry for review).
 - Prettier + ESLint (api), oxlint (web). Run lint before committing.
+- The task-list query uses `placeholderData: keepPreviousData` so changing a
+  filter/page dims the current grid instead of unmounting it to a skeleton;
+  `isPlaceholderData` drives that dim. The skeleton is first-load only.
 - Web tests use Vitest + Testing Library with a standalone `vitest.config.ts`
   (jsdom, no Tailwind plugin). `.test.tsx` files are excluded from
   `tsconfig.app.json` so `npm run build` stays fast; Vitest transpiles them.

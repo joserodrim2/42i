@@ -1,4 +1,5 @@
 import {
+  keepPreviousData,
   useMutation,
   useQuery,
   useQueryClient,
@@ -16,6 +17,9 @@ export function useTaskList(query: TaskListQuery) {
   return useQuery({
     queryKey: keys.list(query),
     queryFn: () => api.listTasks(query),
+    // Keep the current results on screen while the next page/filter loads so
+    // the grid doesn't collapse to a skeleton on every change.
+    placeholderData: keepPreviousData,
   })
 }
 

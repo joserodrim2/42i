@@ -129,7 +129,12 @@ export function TaskListPage() {
               No tasks match these filters.
             </p>
           ) : (
-            <>
+            <div
+              className={`flex flex-col gap-3.5 transition-opacity ${
+                list.isPlaceholderData ? 'pointer-events-none opacity-60' : ''
+              }`}
+              aria-busy={list.isPlaceholderData}
+            >
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {list.data.data.map((task) => (
                   <TaskCard key={task.id} task={task} onDelete={handleDelete} />
@@ -141,7 +146,7 @@ export function TaskListPage() {
                 total={list.data.total}
                 onPage={setPage}
               />
-            </>
+            </div>
           ))}
       </section>
 
