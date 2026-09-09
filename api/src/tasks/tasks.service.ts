@@ -215,6 +215,19 @@ export class TasksService {
     };
   }
 
+  /** Distinct assignee names currently in use, sorted — powers the list filter. */
+  async assignees(): Promise<string[]> {
+    const rows = await this.prisma.task.findMany({
+      where: { assignee: { not: null } },
+      select: { assignee: true },
+      distinct: ['assignee'],
+      orderBy: { assignee: 'asc' },
+    });
+    return rows
+      .map((r) => r.assignee)
+      .filter((a): a is string => a !== null && a !== '');
+  }
+
   /** Global effort figures across the full task hierarchy. */
   async stats(): Promise<
     EffortStats & { byStatus: Record<TaskStatus, number> }

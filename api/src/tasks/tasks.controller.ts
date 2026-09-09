@@ -65,6 +65,15 @@ export class TasksController {
     return this.tasks.stats();
   }
 
+  @Get('assignees')
+  @ApiOperation({
+    summary: 'Distinct assignee names in use (for the list filter)',
+  })
+  @ApiOkResponse({ schema: { type: 'array', items: { type: 'string' } } })
+  assignees() {
+    return this.tasks.assignees();
+  }
+
   @Get(':id')
   @ApiOperation({
     summary: 'Get one task with its full subtree, rollup and ancestors',

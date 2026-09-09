@@ -243,6 +243,21 @@ describe('Tasks API (e2e)', () => {
     expect(body.byStatus).toMatchObject({ TODO: 2, DONE: 1 });
   });
 
+  it('lists distinct assignees in use and filters by assignee', async () => {
+    await api().post('/api/tasks').send({ title: 'a', assignee: 'Ada' });
+    await api().post('/api/tasks').send({ title: 'b', assignee: 'Ada' });
+    await api().post('/api/tasks').send({ title: 'c', assignee: 'Grace' });
+    await api().post('/api/tasks').send({ title: 'd' });
+
+    const { body: names } = await api().get('/api/tasks/assignees').expect(200);
+    expect(names).toEqual(['Ada', 'Grace']);
+
+    const filtered = await api()
+      .get('/api/tasks?scope=all&assignee=ada')
+      .expect(200);
+    expect(filtered.body.total).toBe(2);
+  });
+
   it('filters, sorts and paginates the list view', async () => {
     for (let i = 0; i < 5; i++) {
       await api()
