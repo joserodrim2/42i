@@ -48,7 +48,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             type="button"
             onClick={() => dismiss(t.id)}
             title="Dismiss"
-            className={`animate-toast-in cursor-pointer rounded-lg border border-line border-l-4 bg-white px-3.5 py-2.5 text-left text-sm text-ink shadow-lg hover:bg-page ${BORDER[t.kind]}`}
+            className={`animate-toast-in cursor-pointer rounded-lg border border-line border-l-4 bg-surface px-3.5 py-2.5 text-left text-sm text-ink shadow-lg hover:bg-page ${BORDER[t.kind]}`}
           >
             {t.message}
           </button>

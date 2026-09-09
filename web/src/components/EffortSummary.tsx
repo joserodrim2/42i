@@ -66,14 +66,14 @@ export function EffortSummary({ stats, title, subtitle }: Props) {
             {stats.totalEstimated} pts
           </dd>
         </div>
-        <div className="flex items-center gap-2">
-          <dt className="text-muted">Tasks with an estimate</dt>
-          <dd className="ml-auto text-xs text-muted">
-            {stats.estimatedCount} / {stats.leafCount} leaf tasks
-            {stats.unestimatedCount > 0 && ` · ${stats.unestimatedCount} missing`}
-          </dd>
-        </div>
       </dl>
+
+      {stats.unestimatedCount > 0 && (
+        <p className="mt-2 rounded-md bg-prio-medium px-2 py-1 text-xs text-prio-medium-fg">
+          {stats.unestimatedCount} of {stats.leafCount} leaf task
+          {stats.leafCount === 1 ? '' : 's'} still need an estimate
+        </p>
+      )}
     </section>
   )
 }

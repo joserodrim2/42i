@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 export function Navbar() {
   return (
-    <header className="border-b border-line bg-white">
+    <header className="border-b border-line bg-surface">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3">
         <Link to="/" className="flex items-center gap-2.5 no-underline">
           <img src="/favicon.svg" alt="" width="32" height="32" className="shrink-0" />

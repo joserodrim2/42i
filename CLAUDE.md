@@ -56,11 +56,11 @@ npm run build                # tsc -b && vite build
   primitives (`.btn*`, `.card`, `.field`, `.badge`) live in `@layer components`
   in `web/src/index.css`; everything else is utilities.
 - The palette is the `@theme` block in `index.css` — semantic tokens only
-  (`ink`, `brand-*`, `page`, `line`, `muted`, `todo`/`progress`/`review`/…,
-  `prio-low`/…, each with a `-fg` for its text). Use those, not raw `slate-*`
-  / `red-*`. Status/priority → colour mapping is centralised in
-  `components/Badges.tsx`. `IN_REVIEW` uses a violet not in the supplied
-  palette (no entry for review).
+  (`ink`, `brand-*`, `page`, `surface`, `line`, `muted`, `todo`/`progress`/
+  `review`/…, `prio-low`/…, each with a `-fg` for its text). Use those
+  exclusively — no raw `slate-*` / `red-*` / `bg-white` anywhere in `src/`.
+  Status/priority → colour mapping is centralised in `components/Badges.tsx`.
+  `IN_REVIEW` uses a violet not in the supplied palette (no entry for review).
 - Prettier + ESLint (api), oxlint (web). Run lint before committing.
 - Commit style: Conventional Commits, scoped `api` / `web` / build. Small,
   focused commits.
