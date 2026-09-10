@@ -1,12 +1,14 @@
 import { TaskPriority, TaskStatus } from '@prisma/client';
 import {
-  IsDateString,
   IsEnum,
+  IsISO8601,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   IsUUID,
+  Matches,
+  Max,
   MaxLength,
   Min,
   ValidateIf,
@@ -45,6 +47,7 @@ export class UpdateTaskDto {
   @ValidateIf((_, value) => value !== null)
   @IsNumber()
   @Min(0)
+  @Max(1_000_000)
   effort?: number | null;
 
   @IsOptional()
@@ -56,7 +59,10 @@ export class UpdateTaskDto {
 
   @IsOptional()
   @ValidateIf((_, value) => value !== null)
-  @IsDateString()
+  @Matches(/^\d{4}-\d{2}-\d{2}/, {
+    message: 'dueDate must be an ISO 8601 date (YYYY-MM-DD)',
+  })
+  @IsISO8601({ strict: true })
   dueDate?: string | null;
 
   @IsOptional()

@@ -86,10 +86,19 @@ describe('Tasks API (e2e)', () => {
     expect(cleared.body.dueDate).toBeNull();
   });
 
-  it('rejects a malformed due date with 400', async () => {
+  it('rejects a malformed or impossible due date with 400', async () => {
     await api()
       .post('/api/tasks')
       .send({ title: 'x', dueDate: 'not-a-date' })
+      .expect(400);
+    // Impossible calendar date — must not silently roll over to March.
+    await api()
+      .post('/api/tasks')
+      .send({ title: 'y', dueDate: '2026-02-30' })
+      .expect(400);
+    await api()
+      .post('/api/tasks')
+      .send({ title: 'z', dueDate: '2026' })
       .expect(400);
   });
 
@@ -104,13 +113,18 @@ describe('Tasks API (e2e)', () => {
       .expect(400);
   });
 
-  it('rejects a negative effort but accepts any non-negative number', async () => {
+  it('accepts any sane non-negative effort, rejects negative or absurd', async () => {
     await api().post('/api/tasks').send({ title: 'x', effort: -2 }).expect(400);
     await api().post('/api/tasks').send({ title: 'y', effort: 13 }).expect(201);
     await api()
       .post('/api/tasks')
       .send({ title: 'z', effort: 2.5 })
       .expect(201);
+    // Sanity cap — keeps one fat-fingered value from poisoning the global stats.
+    await api()
+      .post('/api/tasks')
+      .send({ title: 'w', effort: 1e12 })
+      .expect(400);
   });
 
   it('rejects a blank title on create and on update', async () => {

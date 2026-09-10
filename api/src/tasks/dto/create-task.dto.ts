@@ -1,12 +1,14 @@
 import { TaskPriority, TaskStatus } from '@prisma/client';
 import {
-  IsDateString,
   IsEnum,
+  IsISO8601,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   IsUUID,
+  Matches,
+  Max,
   MaxLength,
   Min,
 } from 'class-validator';
@@ -38,14 +40,15 @@ export class CreateTaskDto {
   priority?: TaskPriority;
 
   /**
-   * Optional effort estimate — any non-negative number. Only meaningful on leaf
-   * tasks (the API rejects it on a task that has subtasks). `null` clears it.
-   * The web UI offers a 1–10 scale by team convention, but the API does not
-   * enforce it.
+   * Optional effort estimate — a non-negative number (`0`–`1_000_000`; the upper
+   * bound is just a sanity guard). Only meaningful on leaf tasks — the API
+   * rejects it on a task that has subtasks. `null` clears it. The web UI offers
+   * a 1–10 scale by team convention.
    */
   @IsOptional()
   @IsNumber()
   @Min(0)
+  @Max(1_000_000)
   effort?: number | null;
 
   /** Free-text assignee (this system has no user accounts). Up to 120 chars. */
@@ -55,9 +58,16 @@ export class CreateTaskDto {
   @MaxLength(120)
   assignee?: string | null;
 
-  /** Target completion date (ISO 8601, e.g. `2026-10-15`). `null` clears it. */
+  /**
+   * Target completion date — an ISO 8601 date, `YYYY-MM-DD` (e.g. `2026-10-15`).
+   * Strict: impossible calendar dates like `2026-02-30` are rejected.
+   * `null` clears it.
+   */
   @IsOptional()
-  @IsDateString()
+  @Matches(/^\d{4}-\d{2}-\d{2}/, {
+    message: 'dueDate must be an ISO 8601 date (YYYY-MM-DD)',
+  })
+  @IsISO8601({ strict: true })
   dueDate?: string | null;
 
   /** Parent task id — set to nest this task as a subtask. */
