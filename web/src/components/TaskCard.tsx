@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom'
+import { dueDateLabel } from '../lib/dueDate'
 import { effortText, progressPct } from '../lib/effort'
 import { PRIORITY_ACCENT } from '../lib/taskStyles'
 import type { TaskListItem } from '../lib/types'
-import { PriorityBadge, StatusBadge } from './Badges'
+import { DueBadge, PriorityBadge, StatusBadge } from './Badges'
 import { TrashIcon } from './icons'
 
 interface Props {
@@ -37,6 +38,9 @@ export function TaskCard({ task, onDelete }: Props) {
       <div className="flex flex-wrap items-center gap-1.5 pr-7">
         <StatusBadge status={task.status} />
         <PriorityBadge priority={task.priority} />
+        {task.dueDate && task.status !== 'DONE' && (
+          <DueBadge dueDate={task.dueDate} />
+        )}
       </div>
 
       <h3 className="line-clamp-2 font-medium text-ink group-hover:text-brand-600">
@@ -75,7 +79,13 @@ export function TaskCard({ task, onDelete }: Props) {
 
         <div className="flex items-center justify-between">
           <span>{task.assignee ?? 'Unassigned'}</span>
-          <span>Updated {new Date(task.updatedAt).toLocaleDateString()}</span>
+          {task.dueDate ? (
+            <span className="font-semibold text-ink">
+              Due {dueDateLabel(task.dueDate)}
+            </span>
+          ) : (
+            <span>Updated {new Date(task.updatedAt).toLocaleDateString()}</span>
+          )}
         </div>
       </div>
     </Link>

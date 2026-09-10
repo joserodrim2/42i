@@ -55,4 +55,20 @@ describe('TaskCard', () => {
     )
     expect(screen.getByText('70%')).toBeInTheDocument()
   })
+
+  it('shows a due-date countdown pill and the bold date', () => {
+    renderCard(
+      makeListItem({ status: 'TODO', dueDate: '2000-01-01T23:59:59.999Z' }),
+    )
+    expect(screen.getByText(/overdue/)).toBeInTheDocument()
+    expect(screen.getByText(/^Due /)).toBeInTheDocument()
+  })
+
+  it('drops the countdown pill for a DONE task but keeps the date', () => {
+    renderCard(
+      makeListItem({ status: 'DONE', dueDate: '2000-01-01T23:59:59.999Z' }),
+    )
+    expect(screen.queryByText(/overdue/)).toBeNull()
+    expect(screen.getByText(/^Due /)).toBeInTheDocument()
+  })
 })
