@@ -30,9 +30,13 @@ Then open:
 | API docs (Swagger UI) | http://localhost:3000/api/docs |
 | API health check | http://localhost:3000/api/health |
 
-On start the API container applies database migrations and seeds a sample task
-tree. To start without sample data, set `SEED_ON_START=false` for the `api`
-service in `docker-compose.yml` (or `docker compose run -e SEED_ON_START=false api`).
+Nothing else is needed — no local Node, no `.env` setup. On start the API
+container applies database migrations and seeds a sample task tree. To start
+without sample data, set `SEED_ON_START=false` for the `api` service in
+`docker-compose.yml` (or `docker compose run -e SEED_ON_START=false api`).
+
+Host ports used: **8080** (web), **3000** (api), **5433** (Postgres). If one is
+taken, edit the `ports` mapping for that service in `docker-compose.yml`.
 
 Stop and remove everything (including the database volume):
 
