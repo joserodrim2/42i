@@ -77,17 +77,22 @@ export function TaskHeaderCard({ task, busy, onEdit, onDelete, onChangeStatus }:
       </p>
 
       {pct !== null && (
-        <div className="mt-3 flex items-center gap-2 text-xs text-muted">
-          <span className="h-1.5 w-40 overflow-hidden rounded-full bg-line">
-            <span
-              className="block h-full rounded-full bg-done-fg"
+        <div className="mt-4">
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-line">
+            <div
+              className="h-full rounded-full bg-done-fg transition-[width]"
               style={{ width: `${pct}%` }}
             />
-          </span>
-          <span className="font-medium tabular-nums text-ink">{pct}% done</span>
-          <span>
-            ({task.rollup.completed}/{task.rollup.totalEstimated} pts)
-          </span>
+          </div>
+          <div className="mt-1 flex items-baseline justify-between">
+            <span className="text-xs tabular-nums text-muted">
+              {task.rollup.completed}/{task.rollup.totalEstimated} pts
+            </span>
+            <span className="text-xl font-bold tabular-nums text-ink">
+              {pct}
+              <span className="text-sm font-semibold text-muted">%</span>
+            </span>
+          </div>
         </div>
       )}
 
