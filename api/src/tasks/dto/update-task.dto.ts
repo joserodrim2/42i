@@ -1,6 +1,5 @@
 import { TaskPriority, TaskStatus } from '@prisma/client';
 import {
-  IsDateString,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -56,11 +55,6 @@ export class UpdateTaskDto {
   @IsString()
   @MaxLength(120)
   assignee?: string | null;
-
-  @IsOptional()
-  @ValidateIf((_, value) => value !== null)
-  @IsDateString()
-  dueDate?: string | null;
 
   @IsOptional()
   @ValidateIf((_, value) => value !== null)

@@ -55,7 +55,6 @@ export class TasksService {
           priority: dto.priority ?? undefined,
           effort: normalizeEffort(dto.effort ?? null),
           assignee: dto.assignee?.trim() || null,
-          dueDate: dto.dueDate ? new Date(dto.dueDate) : null,
           parentId: dto.parentId ?? null,
         },
       });
@@ -110,8 +109,6 @@ export class TasksService {
     if (dto.effort !== undefined) data.effort = normalizeEffort(dto.effort);
     if (dto.assignee !== undefined)
       data.assignee = dto.assignee?.trim() || null;
-    if (dto.dueDate !== undefined)
-      data.dueDate = dto.dueDate ? new Date(dto.dueDate) : null;
     if (dto.parentId !== undefined) {
       data.parent = dto.parentId
         ? { connect: { id: dto.parentId } }
