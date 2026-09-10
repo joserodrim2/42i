@@ -53,3 +53,19 @@ export function ArrowRightIcon(props: IconProps) {
     </Icon>
   )
 }
+
+export function ArrowLeftIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M19 12H5M11 19l-7-7 7-7" />
+    </Icon>
+  )
+}
+
+export function ChevronRightIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9 18l6-6-6-6" />
+    </Icon>
+  )
+}

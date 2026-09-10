@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { EffortSummary } from '../components/EffortSummary'
+import { ArrowLeftIcon, ChevronRightIcon } from '../components/icons'
 import { Modal } from '../components/Modal'
 import { SubtaskTree } from '../components/SubtaskTree'
 import { TaskForm } from '../components/TaskForm'
@@ -89,21 +90,31 @@ export function TaskDetailPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <div className="mb-2 text-sm text-muted">
-          <Link to="/" className="text-brand-600 hover:underline">
+        <nav
+          aria-label="Breadcrumb"
+          className="mb-3 flex flex-wrap items-center gap-y-1 text-sm"
+        >
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium text-brand-600 transition-colors hover:bg-brand-50"
+          >
+            <ArrowLeftIcon size={14} />
             All tasks
           </Link>
           {t.ancestors.map((a) => (
-            <span key={a.id}>
-              {' / '}
-              <Link to={`/tasks/${a.id}`} className="text-brand-600 hover:underline">
+            <span key={a.id} className="inline-flex items-center">
+              <ChevronRightIcon size={14} className="text-muted" />
+              <Link
+                to={`/tasks/${a.id}`}
+                className="max-w-[16ch] truncate rounded-md px-2 py-1 text-muted transition-colors hover:bg-page hover:text-ink"
+              >
                 {a.title}
               </Link>
             </span>
           ))}
-          {' / '}
-          <span>{t.title}</span>
-        </div>
+          <ChevronRightIcon size={14} className="text-muted" />
+          <span className="px-2 py-1 font-semibold text-ink">{t.title}</span>
+        </nav>
 
         <TaskHeaderCard
           task={t}
@@ -117,11 +128,13 @@ export function TaskDetailPage() {
         />
       </div>
 
-      <EffortSummary
-        stats={t.rollup}
-        title="Effort roll-up"
-        subtitle="This task and all its subtasks"
-      />
+      {t.subtasks.length > 0 && (
+        <EffortSummary
+          stats={t.rollup}
+          title="Effort roll-up"
+          subtitle="Across this task and every subtask"
+        />
+      )}
 
       <section className="flex flex-col gap-3.5">
         <div className="flex flex-wrap items-center justify-between gap-2">
