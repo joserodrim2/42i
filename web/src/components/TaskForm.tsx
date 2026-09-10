@@ -218,12 +218,12 @@ export function TaskForm({
             <p className="text-xs text-muted">
               Points · {EFFORT_MIN} = trivial, {EFFORT_MAX} = very large
             </p>
-            <div className="flex flex-wrap gap-1">
+            <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-10">
               {EFFORT_POINTS.map((n) => (
                 <button
                   type="button"
                   key={n}
-                  className={`flex h-8 w-8 items-center justify-center rounded-md border text-sm font-medium transition-colors ${
+                  className={`flex h-9 items-center justify-center rounded-md border text-sm font-medium transition-colors ${
                     effort === n
                       ? 'border-brand-600 bg-brand-600 text-white'
                       : 'border-line bg-surface text-ink hover:bg-page'
