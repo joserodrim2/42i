@@ -39,6 +39,8 @@ model Task {
   effort      Float?
   /// Free-text assignee (this system has no auth / user accounts).
   assignee    String?
+  /// Optional target completion date (stored as end-of-day). Per task, not rolled up.
+  dueDate     DateTime?
 
   parentId String?
   parent   Task?   @relation("Subtasks", fields: [parentId], references: [id], onDelete: Cascade)

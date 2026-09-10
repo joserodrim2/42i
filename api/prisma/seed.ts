@@ -14,6 +14,8 @@ interface SeedTask {
   createdDaysAgo?: number;
   /** Days before "now" the task was last touched (defaults to createdDaysAgo). */
   updatedDaysAgo?: number;
+  /** Days from "now" the task is due (negative = overdue). Omit for no due date. */
+  dueInDays?: number;
   subtasks?: SeedTask[];
 }
 
@@ -26,6 +28,7 @@ const TASKS: SeedTask[] = [
     assignee: 'Jose',
     createdDaysAgo: 30,
     updatedDaysAgo: 1,
+    dueInDays: 9,
     subtasks: [
       {
         title: 'Design the data model',
@@ -44,6 +47,7 @@ const TASKS: SeedTask[] = [
         assignee: 'Jose',
         createdDaysAgo: 26,
         updatedDaysAgo: 2,
+        dueInDays: 21,
         subtasks: [
           {
             title: 'Task endpoints',
@@ -85,6 +89,7 @@ const TASKS: SeedTask[] = [
             effort: 3,
             createdDaysAgo: 10,
             updatedDaysAgo: 4,
+            dueInDays: 5,
           },
           {
             title: 'Task detail view with subtask tree',
@@ -104,6 +109,7 @@ const TASKS: SeedTask[] = [
         assignee: 'Jose',
         createdDaysAgo: 9,
         updatedDaysAgo: 2,
+        dueInDays: -2, // overdue
       },
     ],
   },
@@ -125,11 +131,19 @@ const TASKS: SeedTask[] = [
     assignee: 'Sam',
     createdDaysAgo: 3,
     updatedDaysAgo: 0,
+    dueInDays: 1, // due tomorrow
   },
 ];
 
 const daysAgo = (n: number): Date =>
   new Date(Date.now() - n * 24 * 60 * 60 * 1000);
+
+/** N days from now, pinned to end-of-day (how the API stores a due date). */
+const dueIn = (n: number): Date => {
+  const d = daysAgo(-n);
+  d.setUTCHours(23, 59, 59, 999);
+  return d;
+};
 
 /** [taskId, updatedAt] pairs applied after creation (Prisma manages @updatedAt). */
 const touchups: { id: string; updatedAt: Date }[] = [];
@@ -148,6 +162,7 @@ async function createTree(
       priority: node.priority ?? TaskPriority.MEDIUM,
       effort: isLeaf ? (node.effort ?? null) : null,
       assignee: node.assignee ?? null,
+      dueDate: node.dueInDays === undefined ? null : dueIn(node.dueInDays),
       parentId,
       createdAt: daysAgo(createdDaysAgo),
     },

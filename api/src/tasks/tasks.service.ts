@@ -25,6 +25,17 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 
 export type TaskWithSubtasks = TreeNode<Task> & { rollup: EffortStats };
 
+/**
+ * A due date is a calendar day — you have until the end of it. A bare
+ * `YYYY-MM-DD` is pinned to 23:59:59.999Z; a full timestamp is taken as-is.
+ */
+function toDueDate(value: string | null | undefined): Date | null {
+  if (!value) return null;
+  return /^\d{4}-\d{2}-\d{2}$/.test(value)
+    ? new Date(`${value}T23:59:59.999Z`)
+    : new Date(value);
+}
+
 export interface PaginatedTasks {
   data: (Task & {
     rollup: EffortStats;
@@ -55,6 +66,7 @@ export class TasksService {
           priority: dto.priority ?? undefined,
           effort: normalizeEffort(dto.effort ?? null),
           assignee: dto.assignee?.trim() || null,
+          dueDate: toDueDate(dto.dueDate),
           parentId: dto.parentId ?? null,
         },
       });
@@ -109,6 +121,7 @@ export class TasksService {
     if (dto.effort !== undefined) data.effort = normalizeEffort(dto.effort);
     if (dto.assignee !== undefined)
       data.assignee = dto.assignee?.trim() || null;
+    if (dto.dueDate !== undefined) data.dueDate = toDueDate(dto.dueDate);
     if (dto.parentId !== undefined) {
       data.parent = dto.parentId
         ? { connect: { id: dto.parentId } }

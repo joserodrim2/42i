@@ -1,5 +1,6 @@
 import { TaskPriority, TaskStatus } from '@prisma/client';
 import {
+  IsDateString,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -55,6 +56,11 @@ export class CreateTaskDto {
   @IsString()
   @MaxLength(120)
   assignee?: string | null;
+
+  /** Target completion date (ISO 8601, e.g. `2026-10-15`). `null` clears it. */
+  @IsOptional()
+  @IsDateString()
+  dueDate?: string | null;
 
   /** Parent task id — set to nest this task as a subtask. */
   @IsOptional()
