@@ -28,7 +28,7 @@ interface Props {
   onCancel?: () => void
 }
 
-type FieldName = 'title' | 'description' | 'assignee' | 'effort'
+type FieldName = 'title' | 'description' | 'assignee'
 
 const inputCls = (invalid: boolean) =>
   `field${invalid ? ' border-blocked-fg focus:border-blocked-fg focus:ring-blocked/40' : ''}`
@@ -46,12 +46,12 @@ export function TaskForm({
   const [description, setDescription] = useState(initial?.description ?? '')
   const [status, setStatus] = useState<TaskStatus>(initial?.status ?? 'BACKLOG')
   const [priority, setPriority] = useState(initial?.priority ?? 'MEDIUM')
-  const [effort, setEffort] = useState(
-    initial?.effort === null || initial?.effort === undefined
-      ? ''
-      : String(initial.effort),
+  const [effort, setEffort] = useState<number | null>(
+    typeof initial?.effort === 'number' ? initial.effort : null,
   )
   const [assignee, setAssignee] = useState(initial?.assignee ?? '')
+  // <input type="date"> wants a bare YYYY-MM-DD; the API sends a full ISO string.
+  const [dueDate, setDueDate] = useState(initial?.dueDate?.slice(0, 10) ?? '')
   const [touched, setTouched] = useState<Set<FieldName>>(new Set())
 
   const statusOptions =
@@ -67,28 +67,14 @@ export function TaskForm({
     errors.description = `Description must be ${FIELD_LIMITS.description} characters or fewer`
   if (assignee.trim().length > FIELD_LIMITS.assignee)
     errors.assignee = `Assignee must be ${FIELD_LIMITS.assignee} characters or fewer`
-  if (effort !== '') {
-    const n = Number(effort)
-    if (!Number.isInteger(n) || n < EFFORT_MIN || n > EFFORT_MAX)
-      errors.effort = `Estimate must be a whole number from ${EFFORT_MIN} to ${EFFORT_MAX}`
-  }
 
   const show = (f: FieldName) => touched.has(f) && errors[f]
-
-  function markTouched(f: FieldName) {
+  const markTouched = (f: FieldName) =>
     setTouched((t) => new Set(t).add(f))
-  }
-
-  /** Keep only digits and cap at EFFORT_MAX so the field can't hold junk. */
-  function onEffortChange(raw: string) {
-    const digits = raw.replace(/\D/g, '')
-    if (digits === '') return setEffort('')
-    setEffort(String(Math.min(Number(digits), EFFORT_MAX)))
-  }
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    setTouched(new Set<FieldName>(['title', 'description', 'assignee', 'effort']))
+    setTouched(new Set<FieldName>(['title', 'description', 'assignee']))
     if (Object.keys(errors).length > 0) return
 
     const trimmedAssignee = assignee.trim()
@@ -98,17 +84,16 @@ export function TaskForm({
       status,
       priority,
       assignee: trimmedAssignee === '' ? null : trimmedAssignee,
+      dueDate: dueDate === '' ? null : dueDate,
     }
     // A task with subtasks has a derived estimate — never send `effort`.
-    if (!hasSubtasks) {
-      input.effort = effort === '' ? null : Number(effort)
-    }
+    if (!hasSubtasks) input.effort = effort
     onSubmit(input)
   }
 
   return (
-    <form className="flex flex-col gap-3.5" onSubmit={handleSubmit} noValidate>
-      <div>
+    <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
+      <div className="flex flex-col gap-1">
         <label className="form-label" htmlFor="title">
           Title <span className="text-blocked-fg">*</span>
         </label>
@@ -123,10 +108,12 @@ export function TaskForm({
           aria-invalid={!!show('title')}
           autoFocus
         />
-        {show('title') && <p className="mt-1 text-xs text-blocked-fg">{errors.title}</p>}
+        {show('title') && (
+          <p className="text-xs text-blocked-fg">{errors.title}</p>
+        )}
       </div>
 
-      <div>
+      <div className="flex flex-col gap-1">
         <label className="form-label" htmlFor="description">
           Description
         </label>
@@ -138,18 +125,21 @@ export function TaskForm({
           onChange={(e) => setDescription(e.target.value)}
           onBlur={() => markTouched('description')}
         />
-        <div className="mt-1 flex justify-between text-xs text-backlog-fg">
-          <span className="text-blocked-fg">{show('description') ? errors.description : ''}</span>
-          {description.length > FIELD_LIMITS.description - 500 && (
-            <span>
+        {(show('description') ||
+          description.length > FIELD_LIMITS.description - 500) && (
+          <div className="flex justify-between text-xs">
+            <span className="text-blocked-fg">
+              {show('description') ? errors.description : ''}
+            </span>
+            <span className="text-muted">
               {description.length}/{FIELD_LIMITS.description}
             </span>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        <div className="min-w-32 flex-1">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="flex flex-col gap-1">
           <label className="form-label" htmlFor="status">
             Status
           </label>
@@ -166,7 +156,7 @@ export function TaskForm({
             ))}
           </select>
         </div>
-        <div className="min-w-32 flex-1">
+        <div className="flex flex-col gap-1">
           <label className="form-label" htmlFor="priority">
             Priority
           </label>
@@ -185,56 +175,22 @@ export function TaskForm({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        <div className="min-w-40 flex-1">
-          <label className="form-label" htmlFor="effort">
-            Estimate — effort points, {EFFORT_MIN}–{EFFORT_MAX} (optional)
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="flex flex-col gap-1">
+          <label className="form-label" htmlFor="dueDate">
+            Due date
           </label>
           <input
-            id="effort"
-            className={inputCls(!!show('effort'))}
-            type="text"
-            inputMode="numeric"
-            placeholder={`${EFFORT_MIN} = trivial · ${EFFORT_MAX} = very large`}
-            value={hasSubtasks ? '' : effort}
-            disabled={hasSubtasks}
-            onChange={(e) => onEffortChange(e.target.value)}
-            onBlur={() => {
-              markTouched('effort')
-              if (effort !== '' && Number(effort) < EFFORT_MIN)
-                setEffort(String(EFFORT_MIN))
-            }}
-            aria-invalid={!!show('effort')}
+            id="dueDate"
+            type="date"
+            className="field"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
           />
-          {hasSubtasks ? (
-            <p className="mt-1 text-xs text-muted">
-              Derived from subtasks — estimate the subtasks instead.
-            </p>
-          ) : show('effort') ? (
-            <p className="mt-1 text-xs text-blocked-fg">{errors.effort}</p>
-          ) : (
-            <div className="mt-1.5 flex flex-wrap gap-1">
-              {EFFORT_POINTS.map((n) => (
-                <button
-                  type="button"
-                  key={n}
-                  className={`btn btn-sm min-w-9 justify-center ${
-                    effort === String(n)
-                      ? 'border-brand-500 bg-brand-50 text-brand-600'
-                      : ''
-                  }`}
-                  aria-pressed={effort === String(n)}
-                  onClick={() => setEffort(effort === String(n) ? '' : String(n))}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
-        <div className="min-w-40 flex-1">
+        <div className="flex flex-col gap-1">
           <label className="form-label" htmlFor="assignee">
-            Assignee (optional)
+            Assignee
           </label>
           <input
             id="assignee"
@@ -246,9 +202,41 @@ export function TaskForm({
             aria-invalid={!!show('assignee')}
           />
           {show('assignee') && (
-            <p className="mt-1 text-xs text-blocked-fg">{errors.assignee}</p>
+            <p className="text-xs text-blocked-fg">{errors.assignee}</p>
           )}
         </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="form-label">Estimate</label>
+        {hasSubtasks ? (
+          <p className="text-xs text-muted">
+            Derived from subtasks — estimate the subtasks instead.
+          </p>
+        ) : (
+          <>
+            <p className="text-xs text-muted">
+              Points · {EFFORT_MIN} = trivial, {EFFORT_MAX} = very large
+            </p>
+            <div className="flex flex-wrap gap-1">
+              {EFFORT_POINTS.map((n) => (
+                <button
+                  type="button"
+                  key={n}
+                  className={`flex h-8 w-8 items-center justify-center rounded-md border text-sm font-medium transition-colors ${
+                    effort === n
+                      ? 'border-brand-600 bg-brand-600 text-white'
+                      : 'border-line bg-surface text-ink hover:bg-page'
+                  }`}
+                  aria-pressed={effort === n}
+                  onClick={() => setEffort(effort === n ? null : n)}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {error && (
