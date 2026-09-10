@@ -58,6 +58,11 @@ export function TaskListPage() {
   const createTask = useCreateTask()
   const deleteTask = useDeleteTask()
 
+  // Empty page but the filter still has matches (e.g. deleted the last row on
+  // page 2) — offer a way back rather than a misleading "no matches".
+  const pastLastPage =
+    !!list.data && list.data.data.length === 0 && list.data.total > 0
+
   async function handleDelete(task: TaskListItem) {
     const ok = await confirm({
       title: 'Delete this task?',
@@ -86,6 +91,10 @@ export function TaskListPage() {
     <div className="flex flex-col gap-6">
       {stats.isLoading ? (
         <EffortSummarySkeleton />
+      ) : stats.isError ? (
+        <p className="rounded-lg border border-blocked bg-blocked px-3 py-2 text-sm text-blocked-fg">
+          Could not load the effort summary.
+        </p>
       ) : (
         stats.data && (
           <EffortSummary
@@ -125,9 +134,22 @@ export function TaskListPage() {
 
         {list.data &&
           (list.data.data.length === 0 ? (
-            <p className="card p-8 text-center text-muted">
-              No tasks match these filters.
-            </p>
+            pastLastPage ? (
+              <p className="card p-8 text-center text-muted">
+                Nothing on this page.{' '}
+                <button
+                  type="button"
+                  className="font-medium text-brand-600 hover:underline"
+                  onClick={() => setPage(1)}
+                >
+                  Back to the first page
+                </button>
+              </p>
+            ) : (
+              <p className="card p-8 text-center text-muted">
+                No tasks match these filters.
+              </p>
+            )
           ) : (
             <div
               className={`flex flex-col gap-3.5 transition-opacity ${
