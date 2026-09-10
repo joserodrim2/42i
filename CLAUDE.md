@@ -31,13 +31,7 @@ arbitrary depth; effort estimates roll up through the hierarchy. Monorepo:
   tests. `web/src/lib/effort.ts` mirrors the rollup for display (`effortText`
   is the shared "N pts" / "No estimate" wording for both the card and the
   detail header — keep them using it, don't re-format inline; `progressPct`
-  is completed/total points).
-- Due date: `dueDate DateTime?`, independent per task (no rollup).
-  `web/src/lib/schedule.ts` (pure, tested) turns the created→due window into a
-  state — `early`/`mid`/`late` by third, `overdue` past the date, `none` for a
-  task with no due date **or any DONE task**. Drives the card tint
-  (`SCHEDULE_TINT`) and countdown pill (`SCHEDULE_PILL`) — never the side
-  accents, which stay priority-only.
+  is completed/total points, drives the card + header completion bar).
 
 ## Commands
 
@@ -74,8 +68,6 @@ npm run build                # tsc -b && vite build
   cards get from their priority — and `PRIORITY_LABEL`). Never render a raw
   enum (`IN_PROGRESS`, `URGENT`): use `STATUS_STYLE[s].label` / `PRIORITY_LABEL`.
   `IN_REVIEW` uses a violet not in the supplied palette (no entry for review).
-  `sched-early/mid/late/overdue` (+ `-fg`) are the due-date tint tokens; the
-  plain token is a pale card tint, `-fg` is the strong pill colour.
 - Prettier + ESLint (api), oxlint (web). Run lint before committing.
 - The task-list query uses `placeholderData: keepPreviousData` so changing a
   filter/page dims the current grid instead of unmounting it to a skeleton;
