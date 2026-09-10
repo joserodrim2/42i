@@ -10,9 +10,8 @@ import { TaskStatus } from './task-status';
  * task in the system for the global figures); leaf-ness is derived from that
  * list. Pure, so the rules below are covered directly by unit tests.
  *
- * Estimates are effort points on a simple 1-10 scale (1 = trivial,
- * 10 = very large); the stored type is just a non-negative number, so the
- * scale is a UI convention and not enforced here.
+ * An estimate is any non-negative number. The web UI presents a 1-10 scale by
+ * team convention, but nothing here (or in the API) enforces that.
  *
  * Status -> bucket mapping (leaf tasks only):
  *   notStarted : BACKLOG, TODO            (work the team has not begun)
@@ -54,10 +53,6 @@ const IN_PROGRESS: ReadonlySet<TaskStatus> = new Set<TaskStatus>([
   'IN_PROGRESS',
   'IN_REVIEW',
 ]);
-
-/** Effort-point scale presented in the UI (1 = trivial, 10 = very large). */
-export const EFFORT_MIN = 1;
-export const EFFORT_MAX = 10;
 
 /** Normalises a raw estimate to a finite, non-negative number (or null). */
 export function normalizeEffort(value: unknown): number | null {

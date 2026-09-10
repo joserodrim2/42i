@@ -2,17 +2,15 @@ import { TaskPriority, TaskStatus } from '@prisma/client';
 import {
   IsDateString,
   IsEnum,
-  IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   IsUUID,
-  Max,
   MaxLength,
   Min,
 } from 'class-validator';
 import { Trim } from '../../common/transforms';
-import { EFFORT_MAX } from '../domain/effort';
 
 export class CreateTaskDto {
   /** Short summary of the task. Required, 1–200 characters after trimming. */
@@ -40,14 +38,14 @@ export class CreateTaskDto {
   priority?: TaskPriority;
 
   /**
-   * Effort estimate in points (0–{@link EFFORT_MAX}), whole numbers only. Only
-   * meaningful on leaf tasks — the API rejects it on a task that has subtasks.
-   * `null` clears it.
+   * Optional effort estimate — any non-negative number. Only meaningful on leaf
+   * tasks (the API rejects it on a task that has subtasks). `null` clears it.
+   * The web UI offers a 1–10 scale by team convention, but the API does not
+   * enforce it.
    */
   @IsOptional()
-  @IsInt()
+  @IsNumber()
   @Min(0)
-  @Max(EFFORT_MAX)
   effort?: number | null;
 
   /** Free-text assignee (this system has no user accounts). Up to 120 chars. */

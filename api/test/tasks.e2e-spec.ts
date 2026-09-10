@@ -104,13 +104,13 @@ describe('Tasks API (e2e)', () => {
       .expect(400);
   });
 
-  it('rejects an out-of-range effort with 400', async () => {
+  it('rejects a negative effort but accepts any non-negative number', async () => {
     await api().post('/api/tasks').send({ title: 'x', effort: -2 }).expect(400);
-    await api().post('/api/tasks').send({ title: 'y', effort: 11 }).expect(400);
+    await api().post('/api/tasks').send({ title: 'y', effort: 13 }).expect(201);
     await api()
       .post('/api/tasks')
       .send({ title: 'z', effort: 2.5 })
-      .expect(400);
+      .expect(201);
   });
 
   it('rejects a blank title on create and on update', async () => {
