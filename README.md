@@ -155,8 +155,9 @@ offers only the valid next states.
 ### Estimations
 
 Effort is an optional **non-negative number** (`null` / omit = not estimated).
-The API enforces only "non-negative"; the web UI presents a **1–10 point scale**
-(1 = trivial, 10 = very large) as a team convention so estimates stay comparable.
+The API validates `0 ≤ effort ≤ 1 000 000` (the upper bound is a sanity guard);
+the web UI presents a **1–10 point scale** (1 = trivial, 10 = very large) as a
+team convention so estimates stay comparable.
 
 **Only leaf tasks are estimated.** A task that has subtasks is estimated
 implicitly by the sum of its subtree, so:
@@ -232,8 +233,9 @@ Base path: `/api`. All bodies are JSON.
 
 **Field rules** (enforced by the DTOs, shown in the Swagger schemas, and mirrored
 in the web form): `title` non-blank, ≤ 200 chars (trimmed); `description` ≤ 5000;
-`assignee` ≤ 120; `effort` any number ≥ 0; `dueDate` a valid ISO 8601 date (a bare
-`YYYY-MM-DD` is stored as the end of that day); `search` ≤ 200; `page` ≤ 100000,
+`assignee` ≤ 120; `effort` a number `0`–`1 000 000`; `dueDate` an ISO 8601 date,
+`YYYY-MM-DD` (strict — `2026-02-30` is rejected), stored as the end of that day;
+`search` ≤ 200; `page` ≤ 100000,
 `pageSize` ≤ 100. `search` matches `%` / `_` literally.
 
 ```bash
