@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { makeNode } from '../test/factories'
-import { effortText, rollupLeafEffort } from './effort'
+import { effortText, progressPct, rollupLeafEffort } from './effort'
 
 describe('rollupLeafEffort', () => {
   it('returns a leaf task’s own effort', () => {
@@ -37,5 +37,16 @@ describe('effortText', () => {
     expect(
       effortText({ effort: null, subtaskCount: 3, rollup: { totalEstimated: 12 } }),
     ).toBe('12 pts')
+  })
+})
+
+describe('progressPct', () => {
+  it('is completed / total, rounded', () => {
+    expect(progressPct({ completed: 7, totalEstimated: 10 })).toBe(70)
+    expect(progressPct({ completed: 1, totalEstimated: 3 })).toBe(33)
+  })
+
+  it('is null when nothing is estimated', () => {
+    expect(progressPct({ completed: 0, totalEstimated: 0 })).toBeNull()
   })
 })

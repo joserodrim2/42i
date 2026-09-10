@@ -42,18 +42,6 @@
   --color-prio-high-fg: #ea580c;
   --color-prio-urgent: #fee2e2;
   --color-prio-urgent-fg: #dc2626;
-
-  /* Schedule — how much of the created→due window is spent.
-     The plain token is the card tint; `-fg` is the strong pill / text colour.
-     `mid` is amber (not orange) so it reads clearly apart from `late` red. */
-  --color-sched-early: #d4f3de; /* green */
-  --color-sched-early-fg: #15803d;
-  --color-sched-mid: #fdecc0; /* amber — kept yellow so it reads apart from red */
-  --color-sched-mid-fg: #b45309;
-  --color-sched-late: #fdd7d7; /* red */
-  --color-sched-late-fg: #b91c1c;
-  --color-sched-overdue: #ecdafb; /* purple */
-  --color-sched-overdue-fg: #7e22ce;
 }
 
 @layer base {

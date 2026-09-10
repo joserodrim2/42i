@@ -1,11 +1,5 @@
 import { effortText, progressPct } from '../lib/effort'
-import { getSchedule, scheduleLabel } from '../lib/schedule'
-import {
-  PRIORITY_ACCENT,
-  SCHEDULE_PILL,
-  SCHEDULE_TINT,
-  STATUS_STYLE,
-} from '../lib/taskStyles'
+import { PRIORITY_ACCENT, STATUS_STYLE } from '../lib/taskStyles'
 import { ALLOWED_TRANSITIONS, type TaskDetail, type TaskStatus } from '../lib/types'
 import { PriorityBadge, StatusBadge } from './Badges'
 
@@ -26,21 +20,13 @@ export function TaskHeaderCard({ task, busy, onEdit, onDelete, onChangeStatus }:
       rollup: task.rollup,
     }) + (hasSubtasks ? ' (rolled up)' : '')
   const pct = progressPct(task.rollup)
-  const schedule = getSchedule(task)
 
   return (
-    <div
-      className={`card border-x-4 p-4 ${PRIORITY_ACCENT[task.priority]} ${SCHEDULE_TINT[schedule.state]}`}
-    >
+    <div className={`card border-x-4 p-4 ${PRIORITY_ACCENT[task.priority]}`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge status={task.status} />
           <PriorityBadge priority={task.priority} />
-          {schedule.state !== 'none' && (
-            <span className={`badge ${SCHEDULE_PILL[schedule.state]}`}>
-              {scheduleLabel(task)}
-            </span>
-          )}
         </div>
         <div className="flex gap-1">
           <button className="btn" onClick={onEdit}>
@@ -75,10 +61,6 @@ export function TaskHeaderCard({ task, busy, onEdit, onDelete, onChangeStatus }:
       <div className="mt-2 flex flex-wrap gap-4 text-xs text-muted">
         <span>Estimate: {estimate}</span>
         <span>Assignee: {task.assignee ?? '—'}</span>
-        <span>
-          Due:{' '}
-          {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '—'}
-        </span>
         <span>Created {new Date(task.createdAt).toLocaleString()}</span>
         <span>Updated {new Date(task.updatedAt).toLocaleString()}</span>
       </div>

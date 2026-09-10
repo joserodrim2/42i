@@ -52,8 +52,6 @@ export function TaskForm({
       : String(initial.effort),
   )
   const [assignee, setAssignee] = useState(initial?.assignee ?? '')
-  // <input type="date"> wants a bare YYYY-MM-DD; the API sends a full ISO string.
-  const [dueDate, setDueDate] = useState(initial?.dueDate?.slice(0, 10) ?? '')
   const [touched, setTouched] = useState<Set<FieldName>>(new Set())
 
   const statusOptions =
@@ -100,7 +98,6 @@ export function TaskForm({
       status,
       priority,
       assignee: trimmedAssignee === '' ? null : trimmedAssignee,
-      dueDate: dueDate === '' ? null : dueDate,
     }
     // A task with subtasks has a derived estimate — never send `effort`.
     if (!hasSubtasks) {
@@ -188,7 +185,7 @@ export function TaskForm({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-start gap-3">
+      <div className="flex flex-wrap gap-3">
         <div className="min-w-40 flex-1">
           <label className="form-label" htmlFor="effort">
             Estimate — effort points, {EFFORT_MIN}–{EFFORT_MAX} (optional)
@@ -251,18 +248,6 @@ export function TaskForm({
           {show('assignee') && (
             <p className="mt-1 text-xs text-blocked-fg">{errors.assignee}</p>
           )}
-        </div>
-        <div className="min-w-40 flex-1">
-          <label className="form-label" htmlFor="dueDate">
-            Due date (optional)
-          </label>
-          <input
-            id="dueDate"
-            type="date"
-            className="field"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
         </div>
       </div>
 

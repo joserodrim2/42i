@@ -48,7 +48,6 @@ export interface Task {
   priority: TaskPriority
   effort: number | null
   assignee: string | null
-  dueDate: string | null
   parentId: string | null
   createdAt: string
   updatedAt: string
@@ -100,7 +99,6 @@ export interface TaskInput {
   priority?: TaskPriority
   effort?: number | null
   assignee?: string | null
-  dueDate?: string | null
   parentId?: string | null
 }
 

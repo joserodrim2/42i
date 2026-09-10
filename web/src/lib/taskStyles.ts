@@ -1,4 +1,3 @@
-import type { ScheduleState } from './schedule'
 import type { TaskPriority, TaskStatus } from './types'
 
 /** Badge surface + text classes per status (palette tokens from index.css). */
@@ -32,22 +31,4 @@ export const PRIORITY_ACCENT: Record<TaskPriority, string> = {
   MEDIUM: 'border-x-prio-medium-fg',
   HIGH: 'border-x-prio-high-fg',
   URGENT: 'border-x-prio-urgent-fg',
-}
-
-/** Pale background tint a card takes from how much of its due window is left. */
-export const SCHEDULE_TINT: Record<ScheduleState, string> = {
-  none: '',
-  early: 'bg-sched-early',
-  mid: 'bg-sched-mid',
-  late: 'bg-sched-late',
-  overdue: 'bg-sched-overdue',
-}
-
-/** Strong pill colour for the same schedule state (badge showing the countdown). */
-export const SCHEDULE_PILL: Record<ScheduleState, string> = {
-  none: '',
-  early: 'bg-sched-early-fg text-white',
-  mid: 'bg-sched-mid-fg text-white',
-  late: 'bg-sched-late-fg text-white',
-  overdue: 'bg-sched-overdue-fg text-white',
 }
