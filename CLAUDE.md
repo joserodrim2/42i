@@ -32,6 +32,11 @@ arbitrary depth; effort estimates roll up through the hierarchy. Monorepo:
   is the shared "N pts" / "No estimate" wording for both the card and the
   detail header — keep them using it, don't re-format inline; `progressPct`
   is completed/total points, drives the card + header completion bar).
+- Due date: `dueDate DateTime?`, per task (no rollup). A bare `YYYY-MM-DD` is
+  stored as end-of-day (`toDueDate` in `tasks.service.ts`) so "due today" holds
+  all day. `web/src/lib/dueDate.ts` (pure, tested) does the countdown; the teal
+  `<DueBadge>` colour is intentionally unrelated to priority, and it's hidden on
+  DONE tasks. No card background tint — that idea was tried and dropped.
 
 ## Commands
 
@@ -68,6 +73,7 @@ npm run build                # tsc -b && vite build
   cards get from their priority — and `PRIORITY_LABEL`). Never render a raw
   enum (`IN_PROGRESS`, `URGENT`): use `STATUS_STYLE[s].label` / `PRIORITY_LABEL`.
   `IN_REVIEW` uses a violet not in the supplied palette (no entry for review).
+  `due` / `due-strong` (teal) are the due-date pill's own tokens.
 - Prettier + ESLint (api), oxlint (web). Run lint before committing.
 - The task-list query uses `placeholderData: keepPreviousData` so changing a
   filter/page dims the current grid instead of unmounting it to a skeleton;

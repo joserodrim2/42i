@@ -57,14 +57,14 @@ needed:
 docker compose run --rm --no-deps api npm test
 ```
 
-**API end-to-end tests** — 16, full HTTP API against a real PostgreSQL:
+**API end-to-end tests** — 18, full HTTP API against a real PostgreSQL:
 
 ```bash
 docker compose up -d db api
 docker compose run --rm api npm run test:e2e
 ```
 
-**Web tests** — 18, the effort helpers plus the list card, filters and effort
+**Web tests** — 24, the effort and due-date helpers plus the list card, filters and effort
 summary rendered with Testing Library (jsdom, no browser). The web container is a
 static nginx build, so run these on the host:
 
@@ -82,11 +82,11 @@ docker compose up -d db
 cp .env.example .env
 npx prisma migrate deploy
 npm test          # unit tests (51 — domain + service)
-npm run test:e2e  # end-to-end tests (16)
+npm run test:e2e  # end-to-end tests (18)
 
 cd ../web
 npm install
-npm test          # web tests (18 — effort helpers + components)
+npm test          # web tests (24 — effort + due-date helpers + components)
 ```
 
 </details>
@@ -124,7 +124,7 @@ npm run dev
 
 - Full CRUD for tasks. A task has a **title**, **description**, **status**,
   **priority**, an optional **effort** estimate, an optional free-text
-  **assignee**, and timestamps.
+  **assignee**, an optional **due date**, and timestamps.
 - **Subtasks** nest to any depth via a self-relation (`parentId`). Deleting a
   task cascades to its entire subtree.
 - Re-parenting is validated: a task cannot be moved under itself or one of its
@@ -178,6 +178,14 @@ in `api/src/tasks/domain/effort.ts`), counting leaf tasks only:
 `GET /api/tasks/stats` returns these for the whole system; each task's detail
 response returns them for that task's subtree.
 
+### Due date
+
+A task can carry an optional **due date** (stored as end-of-day). Cards and the
+detail header show it in bold plus a teal countdown pill — `due today`,
+`due in 5d`, `2d overdue` (`web/src/lib/dueDate.ts`, unit-tested). The pill
+colour is deliberately unrelated to priority; a `DONE` task shows the date but
+no pill.
+
 ### Progress
 
 Cards and the detail header show a **completion percentage** — completed points
@@ -187,13 +195,14 @@ over total estimated points across the subtree (`progressPct` in
 ### Views
 
 - **List view** (`/`) — an effort summary (stacked bar + breakdown over the
-  whole hierarchy), then tasks as a card grid with priority side accents and a
-  completion bar per card; search, status / priority / assignee filters, a sort
-  control, a `flat` scope and pagination. Skeleton placeholders cover the first
-  load.
-- **Detail view** (`/tasks/:id`) — the task header card (badges, completion bar,
-  inline edit, guided status changes), the subtree effort roll-up, an ancestor
-  breadcrumb, and a recursive subtask tree with add / open / delete on every node.
+  whole hierarchy), then tasks as a card grid with priority side accents, a
+  completion bar and a due-date pill per card; search, status / priority /
+  assignee filters, a sort control, a `flat` scope and pagination. Skeleton
+  placeholders cover the first load.
+- **Detail view** (`/tasks/:id`) — the task header card (badges, due date +
+  countdown, completion bar, inline edit, guided status changes), the subtree
+  effort roll-up, an ancestor breadcrumb, and a recursive subtask tree with
+  add / open / delete on every node.
 
 Destructive actions ask for confirmation in an in-app dialog and every mutation
 reports back with a toast — no native `alert` / `confirm`.
@@ -213,14 +222,15 @@ Base path: `/api`. All bodies are JSON.
 | `GET` | `/tasks/stats` | Global effort figures + task counts by status. |
 | `GET` | `/tasks/assignees` | Distinct assignee names currently in use (for the filter). |
 | `GET` | `/tasks/:id` | One task with its full nested `subtasks`, `rollup`, `parent` and `ancestors`. |
-| `POST` | `/tasks` | Create a task. Body: `title` (required), `description`, `status`, `priority`, `effort`, `assignee`, `parentId`. |
+| `POST` | `/tasks` | Create a task. Body: `title` (required), `description`, `status`, `priority`, `effort`, `assignee`, `dueDate` (ISO 8601), `parentId`. |
 | `POST` | `/tasks/:id/subtasks` | Create a task nested under `:id`. |
-| `PATCH` | `/tasks/:id` | Partial update. `effort` and `parentId` accept `null` to clear / un-nest. Status changes are checked against the lifecycle; setting `effort` on a task with subtasks is rejected. |
+| `PATCH` | `/tasks/:id` | Partial update. `effort`, `dueDate` and `parentId` accept `null` to clear / un-nest. Status changes are checked against the lifecycle; setting `effort` on a task with subtasks is rejected. |
 | `DELETE` | `/tasks/:id` | Delete the task and its subtree. Returns `{ id, deletedCount }`. |
 
 **Field rules** (enforced by the DTOs, shown in the Swagger schemas, and mirrored
 in the web form): `title` non-blank, ≤ 200 chars (trimmed); `description` ≤ 5000;
-`assignee` ≤ 120; `effort` integer 0–10; `search` ≤ 200; `page` ≤ 100000,
+`assignee` ≤ 120; `effort` integer 0–10; `dueDate` a valid ISO 8601 date (a bare
+`YYYY-MM-DD` is stored as the end of that day); `search` ≤ 200; `page` ≤ 100000,
 `pageSize` ≤ 100. `search` matches `%` / `_` literally.
 
 ```bash
@@ -277,7 +287,7 @@ curl -s localhost:3000/api/tasks/stats
         │                    Pagination, TaskForm, SubtaskTree, Badges, Modal, Skeletons,
         │                    Toast, Confirm  (+ *.test.tsx alongside)
         ├── hooks/           TanStack Query hooks, toast/confirm contexts
-        ├── lib/             API client, shared types, effort + filter + style helpers
+        ├── lib/             API client, shared types, effort + due-date + filter + style helpers
         └── test/            Vitest setup + test data factories
 ```
 
@@ -288,6 +298,7 @@ curl -s localhost:3000/api/tasks/stats
   full-text) on the list endpoint and UI
 - Loading skeletons on first paint
 - Points-based completion bar on every card and the detail header
+- Due-date countdown pill (`due today` / `2d overdue`), colour-independent of priority
 
 ## AI usage
 
