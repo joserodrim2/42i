@@ -150,10 +150,9 @@ offers only the valid next states.
 
 ### Estimations
 
-Effort is measured in **points on a simple 1–10 scale** (1 = trivial,
-10 = very large), the same unit for every task. The API accepts an optional
-integer from 0 to 10 (`0` = no effort, omit / `null` = not estimated yet);
-the form offers 1–10 quick-picks.
+Effort is an optional **non-negative number** (`null` / omit = not estimated).
+The API enforces only "non-negative"; the web UI presents a **1–10 point scale**
+(1 = trivial, 10 = very large) as a team convention so estimates stay comparable.
 
 **Only leaf tasks are estimated.** A task that has subtasks is estimated
 implicitly by the sum of its subtree, so:
@@ -229,7 +228,7 @@ Base path: `/api`. All bodies are JSON.
 
 **Field rules** (enforced by the DTOs, shown in the Swagger schemas, and mirrored
 in the web form): `title` non-blank, ≤ 200 chars (trimmed); `description` ≤ 5000;
-`assignee` ≤ 120; `effort` integer 0–10; `dueDate` a valid ISO 8601 date (a bare
+`assignee` ≤ 120; `effort` any number ≥ 0; `dueDate` a valid ISO 8601 date (a bare
 `YYYY-MM-DD` is stored as the end of that day); `search` ≤ 200; `page` ≤ 100000,
 `pageSize` ≤ 100. `search` matches `%` / `_` literally.
 
@@ -302,5 +301,4 @@ curl -s localhost:3000/api/tasks/stats
 
 ## AI usage
 
-Built with Claude Code. See [CLAUDE.md](CLAUDE.md) for the agent configuration
-and how AI was used.
+Built with Claude Code. [CLAUDE.md](CLAUDE.md) is the agent configuration.

@@ -22,7 +22,8 @@ arbitrary depth; effort estimates roll up through the hierarchy. Monorepo:
 - The status lifecycle graph is defined once in `task-status.ts`. The web app
   mirrors it in `web/src/lib/types.ts` (`ALLOWED_TRANSITIONS`) — keep the two in
   sync if you change transitions.
-- Effort model: **points on a 1–10 scale, leaves only**. Only leaf tasks carry an
+- Effort model: **any non-negative number, leaves only**. The API enforces only
+  `>= 0`; the 1–10 scale is a web-UI convention. Only leaf tasks carry an
   estimate; parents are the sum of their subtree. Enforced in `effort.ts`
   (aggregation ignores non-leaf effort) and `tasks.service.ts` (rejects
   estimating a parent; clears a leaf's estimate when it gains a subtask).
@@ -99,14 +100,7 @@ npm run build                # tsc -b && vite build
   optional deps (`@emnapi/*`), breaking `npm ci` in Docker/CI. Fix:
   `rm -rf node_modules package-lock.json && npm install`, then re-`prisma generate`.
 
-## How AI was used on this project
+## AI
 
-The whole project was built with **Claude Code** (Sonnet) driving:
-scaffolding, the Prisma schema, all domain logic and its tests, the NestJS
-service/controller layer, the e2e suite, the React UI, the Docker setup and this
-documentation. Development was iterative — schema and domain first, tested, then
-the HTTP layer, then the frontend, verified end-to-end through
-`docker compose up` against a fresh database volume.
-
-All generated code was reviewed and adjusted by the author; correctness and
-consistency are the author's responsibility.
+Built with Claude Code; the sections above are its working config. All generated
+code was reviewed by the author, who is responsible for its correctness.
